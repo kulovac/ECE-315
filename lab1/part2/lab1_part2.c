@@ -58,12 +58,13 @@ PmodKYPD 	KYPDInst;
 /*************************** Enter your code here ****************************/
 // TODO: Declare the seven-segment display peripheral here.
 XGpio		SSDInst;
-XGpio       LEDInst;
+XGpio       rgbLedInst;
 /*****************************************************************************/
 
 // Function prototypes
 void InitializeKeypad();
 static void vKeypadTask( void *pvParameters );
+static void vRgbTask(void *pvParameters);
 u32 SSD_decode(u8 key_value, u8 cathode);
 
 
@@ -80,8 +81,8 @@ int main(void)
 	XGpio_SetDataDirection(&SSDInst, SSD_CHANNEL, 0x0); // sets all pins as outputs
 
     // initialize LEDS and set GPIO direction to output
-    XGpio_Initialize(&LEDInst, RGB_LED_BASEADDR, 0x0);
-    XGpio_SetDataDirection(&LEDInst, RGB_LED_BASEADDR);
+    XGpio_Initialize(&rgbLedInst, RGB_LED_BASEADDR, 0x0);
+    XGpio_SetDataDirection(&rgbLedInst, RGB_LED_BASEADDR);
 /*****************************************************************************/
 
 	xil_printf("Initialization Complete, System Ready!\n");
@@ -222,3 +223,4 @@ static void vRgbTask(void *pvParameters)
         vTaskDelay(xDelay);
     }
 }
+
