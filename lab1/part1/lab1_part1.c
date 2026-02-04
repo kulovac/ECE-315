@@ -74,6 +74,7 @@ int main(void)
 /*************************** Enter your code here ****************************/
 	// TODO: Initialize SSD and set the GPIO direction to output.
 	XGpio_Initialize(&SSDInst, SSD_DEVICE_ID);
+	XGpio_SetDataDirection(&SSDInst, SSD_CHANNEL, 0x0); // sets all pins as outputs
 /*****************************************************************************/
 
 	xil_printf("Initialization Complete, System Ready!\n");
