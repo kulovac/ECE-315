@@ -3,9 +3,8 @@ project(labs C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# TODO: Let this be customized (or use submodules?)
-set(FREERTOS_KERNEL_PATH "/Users/amarkulovac/FreeRTOS-Kernel")
-set(EMBEDDEDSW_ROOT "/Users/amarkulovac/embeddedsw")
+set(FREERTOS_KERNEL_PATH ${CMAKE_SOURCE_DIR}/external/FreeRTOS-Kernel)
+set(EMBEDDEDSW_ROOT     ${CMAKE_SOURCE_DIR}/external/embeddedsw)
 
 # ------------------------
 # embeddedsw drivers
