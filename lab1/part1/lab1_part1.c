@@ -145,6 +145,7 @@ static void vKeypadTask( void *pvParameters )
 		vTaskDelay(xDelay);
 		ssd_value = SSD_decode(previous_key, (u8) 1); // left side, cat = 1
 		XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
+		vTaskDelay(xDelay);
 
 /*****************************************************************************/
 	}
