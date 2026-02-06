@@ -44,6 +44,8 @@
 /*************************** Enter your code here ****************************/
 // TODO: Define the seven-segment display (SSD) base address.
 #define SSD_DEVICE_ID		XPAR_GPIO_SSD_BASEADDR
+#define PSHBTN_DEVICE_ID    XPAR_GPIO_
+#define PSHBTN_CHANNEL      2
 /*****************************************************************************/
 
 // keypad key table
@@ -59,6 +61,7 @@ PmodKYPD 	KYPDInst;
 // TODO: Declare the seven-segment display peripheral here.
 XGpio		SSDInst;
 XGpio       rgbLedInst;
+XGpio       pbInst;
 /*****************************************************************************/
 
 // Function prototypes
@@ -81,8 +84,12 @@ int main(void)
 	XGpio_SetDataDirection(&SSDInst, SSD_CHANNEL, 0x0); // sets all pins as outputs
 
     // initialize LEDS and set GPIO direction to output
-    XGpio_Initialize(&rgbLedInst, RGB_LED_BASEADDR, 0x0);
-    XGpio_SetDataDirection(&rgbLedInst, RGB_LED_BASEADDR);
+    XGpio_Initialize(&rgbLedInst, RGB_LED_BASEADDR);
+    XGpio_SetDataDirection(&rgbLedInst, RGB_LED_BASEADDR, 0x0);
+
+    // initialize pushbutton GPIO
+    XGpio_Initialize(&rgbLedInst, PSHBTN_DEVICE_ID);
+    XGpio_SetDataDirection(&rgbLedInst, PSHBTN_DEVICE_ID, 0x1);
 /*****************************************************************************/
 
 	xil_printf("Initialization Complete, System Ready!\n");
@@ -212,11 +219,23 @@ u32 SSD_decode(u8 key_value, u8 cathode)
 static void vRgbTask(void *pvParameters)
 {
     const uint8_t color = RGB_CYAN;
-	const TickType_t xPeriod = 100;
+	TickType_t xPeriod = 100;
     TickType_t xDelay = xPeriod / 2;
-	xil_printf("\nxPeriod: %d\n", xPeriod);
+    u32 input_value;
 
     while (1){
+        input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
+        if (input_value == 8) {
+            ++xPeriod; 
+            xil_printf("\nxPeriod: %d\n", xPeriod);
+            vTaskDelay(1);
+        } else if (input_value == 1) {
+            xPeriod = (xPeriod <= 0) ? 0 : xPeriod - 1;
+            xil_printf("\nxPeriod: %d\n", xPeriod);
+            vTaskDelay(1);
+        }
+        xDelay = xPeriod / 2;
+
         XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
         vTaskDelay(xDelay);
         XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
