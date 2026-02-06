@@ -102,7 +102,7 @@ static void vKeypadTask( void *pvParameters )
 /*************************** Enter your code here ****************************/
 	// TODO: Define a constant of type TickType_t named 'xDelay' and initialize
 	//       it with a value of 100.
-	const TickType_t xDelay = 100; // portticks
+	const TickType_t xDelay = 12; // portticks
 /*****************************************************************************/
 
     xil_printf("Pmod KYPD app started. Press any key on the Keypad.\r\n");
@@ -141,10 +141,11 @@ static void vKeypadTask( void *pvParameters )
 		*/
 		
 
-		ssd_value = SSD_decode(current_key, (u8) 0); // right side, cat = 0
+        // NOTE: The SSD is upside down on the zybo...
+		ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 0
 		XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
 		vTaskDelay(xDelay);
-		ssd_value = SSD_decode(previous_key, (u8) 1); // left side, cat = 1
+		ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 1
 		XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
 		vTaskDelay(xDelay);
 
