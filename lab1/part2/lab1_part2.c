@@ -37,6 +37,7 @@
 #include "pmodkypd.h"
 
 // Part 2 headers
+#include "portmacro.h"
 #include "rgb_led.h"
 
 // Device ID declarations
@@ -44,8 +45,8 @@
 /*************************** Enter your code here ****************************/
 // TODO: Define the seven-segment display (SSD) base address.
 #define SSD_DEVICE_ID		XPAR_GPIO_SSD_BASEADDR
-#define PSHBTN_DEVICE_ID    XPAR_GPIO_
-#define PSHBTN_CHANNEL      2
+#define PSHBTN_DEVICE_ID    XPAR_GPIO_INPUTS_BASEADDR
+#define PSHBTN_CHANNEL      1
 /*****************************************************************************/
 
 // keypad key table
@@ -85,11 +86,11 @@ int main(void)
 
     // initialize LEDS and set GPIO direction to output
     XGpio_Initialize(&rgbLedInst, RGB_LED_BASEADDR);
-    XGpio_SetDataDirection(&rgbLedInst, RGB_LED_BASEADDR, 0x0);
+    XGpio_SetDataDirection(&rgbLedInst, RGB_CHANNEL, 0x0);
 
     // initialize pushbutton GPIO
-    XGpio_Initialize(&rgbLedInst, PSHBTN_DEVICE_ID);
-    XGpio_SetDataDirection(&rgbLedInst, PSHBTN_DEVICE_ID, 0x1);
+    XGpio_Initialize(&pbInst, PSHBTN_DEVICE_ID);
+    XGpio_SetDataDirection(&pbInst, PSHBTN_CHANNEL, 0x1);
 /*****************************************************************************/
 
 	xil_printf("Initialization Complete, System Ready!\n");
@@ -124,7 +125,7 @@ static void vKeypadTask( void *pvParameters )
 /*************************** Enter your code here ****************************/
 	// TODO: Define a constant of type TickType_t named 'xDelay' and initialize
 	//       it with a value of 100.
-	const TickType_t xDelay = 100; // portticks
+	const TickType_t xDelay = 12; // portticks
 /*****************************************************************************/
 
     xil_printf("Pmod KYPD app started. Press any key on the Keypad.\r\n");
@@ -162,11 +163,11 @@ static void vKeypadTask( void *pvParameters )
 		* Add a delay between updates for persistence of vision using `vTaskDelay`.
 		*/
 		
-
-		ssd_value = SSD_decode(current_key, (u8) 0); // right side, cat = 0
+        // NOTE: The SSD is upside down on the zybo...
+		ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 0
 		XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
 		vTaskDelay(xDelay);
-		ssd_value = SSD_decode(previous_key, (u8) 1); // left side, cat = 1
+		ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 1
 		XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
 		vTaskDelay(xDelay);
 
@@ -219,27 +220,29 @@ u32 SSD_decode(u8 key_value, u8 cathode)
 static void vRgbTask(void *pvParameters)
 {
     const uint8_t color = RGB_CYAN;
-	TickType_t xPeriod = 100;
-    TickType_t xDelay = xPeriod / 2;
+	const TickType_t xPeriod = 20;
+    TickType_t xTimeOn = xPeriod;
+    TickType_t xTimeOff = 0;
     u32 input_value;
 
     while (1){
         input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
         if (input_value == 8) {
-            ++xPeriod; 
-            xil_printf("\nxPeriod: %d\n", xPeriod);
+            xTimeOn = (xTimeOn >= xPeriod) ? xPeriod : xPeriod + 1;
+            xTimeOff = (xTimeOff <= 0) ? 0 : xTimeOff - 1;
+            xil_printf("xTimeOn: %d\nxTimeOff: %d\n", xTimeOn, xTimeOff);
             vTaskDelay(1);
         } else if (input_value == 1) {
-            xPeriod = (xPeriod <= 0) ? 0 : xPeriod - 1;
-            xil_printf("\nxPeriod: %d\n", xPeriod);
+            xTimeOff = (xTimeOff >= xPeriod) ? xPeriod : xPeriod + 1;
+            xTimeOn = (xTimeOn <= 0) ? 0 : xTimeOn - 1;
+            xil_printf("xTimeOn: %d\nxTimeOff: %d\n", xTimeOn, xTimeOff);
             vTaskDelay(1);
         }
-        xDelay = xPeriod / 2;
 
         XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
-        vTaskDelay(xDelay);
+        vTaskDelay(xTimeOn);
         XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
-        vTaskDelay(xDelay);
+        vTaskDelay(xTimeOff);
     }
 }
 
