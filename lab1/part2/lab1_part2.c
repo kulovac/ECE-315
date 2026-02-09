@@ -228,19 +228,21 @@ static void vRgbTask(void *pvParameters)
     while (1){
         input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
         if (input_value == 8) {
-            xTimeOn = (xTimeOn >= xPeriod) ? xPeriod : xPeriod + 1;
+            xTimeOn = (xTimeOn >= xPeriod) ? xPeriod : xTimeOn + 1;
             xTimeOff = (xTimeOff <= 0) ? 0 : xTimeOff - 1;
             xil_printf("xTimeOn: %d\nxTimeOff: %d\n", xTimeOn, xTimeOff);
             vTaskDelay(1);
         } else if (input_value == 1) {
-            xTimeOff = (xTimeOff >= xPeriod) ? xPeriod : xPeriod + 1;
+            xTimeOff = (xTimeOff >= xPeriod) ? xPeriod : xTimeOff + 1;
             xTimeOn = (xTimeOn <= 0) ? 0 : xTimeOn - 1;
             xil_printf("xTimeOn: %d\nxTimeOff: %d\n", xTimeOn, xTimeOff);
             vTaskDelay(1);
         }
 
-        XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
-        vTaskDelay(xTimeOn);
+        if (xTimeOn != 0) {
+            XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
+            vTaskDelay(xTimeOn);
+        }
         XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
         vTaskDelay(xTimeOff);
     }
