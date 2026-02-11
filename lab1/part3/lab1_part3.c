@@ -65,8 +65,9 @@ XGpio       pbInst;
 /*****************************************************************************/
 
 enum PWM_Control {
-    TURN_UP=1,
-    TURN_DOWN=8,
+    TURN_DOWN,
+    TURN_UP,
+    UNKNOWN,
 };
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -221,6 +222,16 @@ u32 SSD_decode(u8 key_value, u8 cathode)
     }
 }
 
+// Based on the button input, convert to a PWM
+// opcode for the LED
+enum PWM_Control LED_decode(u32 input) {
+    switch (input) {
+        case 1: return TURN_UP;
+        case 8: return TURN_DOWN;
+        default: return UNKOWN;
+    }
+}
+
 static void vRgbTask(void *pvParameters)
 {
     const uint8_t color = RGB_CYAN;
@@ -229,26 +240,29 @@ static void vRgbTask(void *pvParameters)
     TickType_t xTimeOn = xPeriod;
     TickType_t xTimeOff = 0;
     u32 input_value;
+    enum PWM_Control ctrl;
 
     while (1) {
         if (pdTRUE == xQueueReceive(pushbutton_to_led_handle, &input_value, 0)) {
-            if (input_value == TURN_DOWN) {
+            ctrl = LED_decode(input_value);
+            if (ctrl == TURN_UP) {
                 xTimeOn = MIN(xPeriod, xTimeOn + 1);
                 xTimeOff = xPeriod - xTimeOn;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
-            } else if (input_value == TURN_UP) {
+            } else if (ctrl == TURN_DOWN) {
                 xTimeOff = MIN(xPeriod, xTimeOff + 1);
                 xTimeOn = xPeriod - xTimeOff;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
             }
-            if (xTimeOn != 0) {
-                // ensure it turns off fully :)
-                XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
-                vTaskDelay(xTimeOn);
-            }
-            XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
-            vTaskDelay(xTimeOff);
         }
+
+        if (xTimeOn != 0) {
+            // ensure it turns off fully :)
+            XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
+            vTaskDelay(xTimeOn);
+        }
+        XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
+        vTaskDelay(xTimeOff);
     }
 }
 
