@@ -69,6 +69,9 @@ enum PWM_Control {
     TURN_DOWN=8,
 };
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 // Function prototypes
 void InitializeKeypad();
 static void vKeypadTask( void *pvParameters );
@@ -229,13 +232,13 @@ static void vRgbTask(void *pvParameters)
 
     while (1) {
         if (pdTRUE == xQueueReceive(pushbutton_to_led_handle, &input_value, 0)) {
-            if (input_value == TURN_UP) {
-                xTimeOn = (xTimeOn >= xPeriod) ? xPeriod : xTimeOn + 1;
-                xTimeOff = (xTimeOff <= 0) ? 0 : xTimeOff - 1;
+            if (input_value == TURN_DOWN) {
+                xTimeOn = MIN(xPeriod, xTimeOn + 1);
+                xTimeOff = xPeriod - xTimeOn;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
-            } else if (input_value == TURN_DOWN) {
-                xTimeOff = (xTimeOff >= xPeriod) ? xPeriod : xTimeOff + 1;
-                xTimeOn = (xTimeOn <= 0) ? 0 : xTimeOn - 1;
+            } else if (input_value == TURN_UP) {
+                xTimeOff = MIN(xPeriod, xTimeOff + 1);
+                xTimeOn = xPeriod - xTimeOff;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
             }
             if (xTimeOn != 0) {
