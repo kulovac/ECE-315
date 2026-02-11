@@ -228,7 +228,7 @@ enum PWM_Control LED_decode(u32 input) {
     switch (input) {
         case 1: return TURN_UP;
         case 8: return TURN_DOWN;
-        default: return UNKOWN;
+        default: return UNKNOWN;
     }
 }
 
@@ -245,14 +245,19 @@ static void vRgbTask(void *pvParameters)
     while (1) {
         if (pdTRUE == xQueueReceive(pushbutton_to_led_handle, &input_value, 0)) {
             ctrl = LED_decode(input_value);
-            if (ctrl == TURN_UP) {
-                xTimeOn = MIN(xPeriod, xTimeOn + 1);
-                xTimeOff = xPeriod - xTimeOn;
-                xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
-            } else if (ctrl == TURN_DOWN) {
+            switch (ctrl) {
+            case TURN_DOWN:
                 xTimeOff = MIN(xPeriod, xTimeOff + 1);
                 xTimeOn = xPeriod - xTimeOff;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
+                break;
+            case TURN_UP:
+                xTimeOn = MIN(xPeriod, xTimeOn + 1);
+                xTimeOff = xPeriod - xTimeOn;
+                xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
+                break;
+            case UNKNOWN:
+              break;
             }
         }
 
@@ -267,11 +272,12 @@ static void vRgbTask(void *pvParameters)
 }
 
 static void vButtonsTask(void *pvParameters) {
+    const TickType_t xDelay = 100;
     u32 input_value;
     while (1) {
         input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
         xQueueOverwrite(pushbutton_to_led_handle, &input_value);
-        vTaskDelay(50);
+        vTaskDelay(xDelay);
     }
 }
 
