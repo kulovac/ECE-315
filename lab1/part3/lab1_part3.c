@@ -292,11 +292,11 @@ static void vDisplayTask(void *pvParameters) {
             current_key = new_key;
         }
         
-        ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 0
+        ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 1
         XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
         vTaskDelay(xDelay);
 
-        ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 1
+        ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 0
         XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
         vTaskDelay(xDelay);
     }
