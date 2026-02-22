@@ -1,5 +1,5 @@
 add_executable(lab1_part3
-    lab1_part2.c
+    lab1_part3.c
     pmodkypd.c
 )
 

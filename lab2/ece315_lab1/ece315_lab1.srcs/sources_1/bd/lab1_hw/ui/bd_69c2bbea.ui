@@ -1,0 +1,46 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"0.678385",
+   "Default View_TopLeft":"364,-15",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0
+#  -string -flagsOSRD
+preplace port green_leds -pg 1 -lvl 5 -x 1790 -y 70 -defaultsOSRD
+preplace port rgb_led -pg 1 -lvl 5 -x 1790 -y 100 -defaultsOSRD
+preplace port buttons -pg 1 -lvl 5 -x 1790 -y 180 -defaultsOSRD
+preplace port switches -pg 1 -lvl 5 -x 1790 -y 210 -defaultsOSRD
+preplace port DDR -pg 1 -lvl 5 -x 1790 -y 150 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -lvl 5 -x 1790 -y 240 -defaultsOSRD
+preplace port digit -pg 1 -lvl 5 -x 1790 -y -170 -defaultsOSRD
+preplace port keypad -pg 1 -lvl 5 -x 1790 -y -320 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 2 -x 810 -y 430 -defaultsOSRD
+preplace inst gpio_leds -pg 1 -lvl 1 -x 390 -y 50 -defaultsOSRD
+preplace inst gpio_inputs -pg 1 -lvl 1 -x 390 -y 200 -defaultsOSRD
+preplace inst axi_smc -pg 1 -lvl 4 -x 1600 -y 370 -defaultsOSRD
+preplace inst rst_ps7_0_50M -pg 1 -lvl 3 -x 1240 -y 590 -defaultsOSRD
+preplace inst gpio_ssd -pg 1 -lvl 1 -x 390 -y -130 -defaultsOSRD
+preplace inst gpio_kypd -pg 1 -lvl 1 -x 390 -y -270 -defaultsOSRD
+preplace netloc processing_system7_0_FCLK_CLK0 1 0 4 250 -30 610 290 1020 420 1430
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 2 1 1040 510n
+preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 0 4 240 -40 NJ -40 NJ -40 1420
+preplace netloc axi_gpio_0_GPIO 1 1 4 NJ 190 NJ 190 N 190 1730
+preplace netloc axi_gpio_0_GPIO2 1 1 4 NJ 210 NJ 210 N 210 N
+preplace netloc axi_gpio_1_GPIO 1 1 4 NJ -130 NJ -130 NJ -130 1750J
+preplace netloc axi_gpio_2_GPIO 1 1 4 NJ -270 NJ -270 NJ -270 1750J
+preplace netloc axi_smc_M00_AXI 1 0 5 280 280 500J 260 NJ 260 NJ 260 1730
+preplace netloc axi_smc_M01_AXI 1 0 5 270 290 510J 270 NJ 270 NJ 270 1740
+preplace netloc axi_smc_M02_AXI 1 0 5 260 300 620J 280 NJ 280 NJ 280 1750
+preplace netloc axi_smc_M03_AXI 1 0 5 230 570 NJ 570 1030J 490 NJ 490 1730
+preplace netloc gpio_leds_GPIO 1 1 4 NJ 40 NJ 40 N 40 1750
+preplace netloc gpio_leds_GPIO2 1 1 4 NJ 60 NJ 60 N 60 1730
+preplace netloc processing_system7_0_DDR 1 2 3 1000J 150 NJ 150 NJ
+preplace netloc processing_system7_0_FIXED_IO 1 2 3 1010J 240 NJ 240 NJ
+preplace netloc processing_system7_0_M_AXI_GP0 1 2 2 NJ 410 1410
+levelinfo -pg 1 -50 390 810 1240 1600 1790
+pagesize -pg 1 -db -bbox -sgen -200 -490 1950 940
+"
+}
+{
+   "da_axi4_cnt":"2",
+   "da_ps7_cnt":"1"
+}

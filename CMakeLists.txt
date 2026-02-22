@@ -14,6 +14,7 @@ target_include_directories(xilinx_drivers INTERFACE # NOTE: Add more as needed
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/common/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/gpio/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/scugic/src
+    ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/uartps/src
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/common
 )
 
@@ -40,4 +41,6 @@ target_compile_options(freertos_kernel PRIVATE
 # ------------------------
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part1/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part2/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part3/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part1/)
 
