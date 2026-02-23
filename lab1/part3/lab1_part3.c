@@ -65,9 +65,13 @@ XGpio       pbInst;
 /*****************************************************************************/
 
 enum PWM_Control {
-    TURN_UP=1,
-    TURN_DOWN=8,
+    TURN_DOWN,
+    TURN_UP,
+    UNKNOWN,
 };
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 // Function prototypes
 void InitializeKeypad();
@@ -218,6 +222,16 @@ u32 SSD_decode(u8 key_value, u8 cathode)
     }
 }
 
+// Based on the button input, convert to a PWM
+// opcode for the LED
+enum PWM_Control LED_decode(u32 input) {
+    switch (input) {
+        case 1: return TURN_UP;
+        case 8: return TURN_DOWN;
+        default: return UNKNOWN;
+    }
+}
+
 static void vRgbTask(void *pvParameters)
 {
     const uint8_t color = RGB_CYAN;
@@ -226,35 +240,44 @@ static void vRgbTask(void *pvParameters)
     TickType_t xTimeOn = xPeriod;
     TickType_t xTimeOff = 0;
     u32 input_value;
+    enum PWM_Control ctrl;
 
     while (1) {
         if (pdTRUE == xQueueReceive(pushbutton_to_led_handle, &input_value, 0)) {
-            if (input_value == TURN_UP) {
-                xTimeOn = (xTimeOn >= xPeriod) ? xPeriod : xTimeOn + 1;
-                xTimeOff = (xTimeOff <= 0) ? 0 : xTimeOff - 1;
+            ctrl = LED_decode(input_value);
+            switch (ctrl) {
+            case TURN_DOWN:
+                xTimeOff = MIN(xPeriod, xTimeOff + 1);
+                xTimeOn = xPeriod - xTimeOff;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
-            } else if (input_value == TURN_DOWN) {
-                xTimeOff = (xTimeOff >= xPeriod) ? xPeriod : xTimeOff + 1;
-                xTimeOn = (xTimeOn <= 0) ? 0 : xTimeOn - 1;
+                break;
+            case TURN_UP:
+                xTimeOn = MIN(xPeriod, xTimeOn + 1);
+                xTimeOff = xPeriod - xTimeOn;
                 xil_printf("Time On: %d --- Time Off: %d\n", xTimeOn, xTimeOff);
+                break;
+            case UNKNOWN:
+              break;
             }
-            if (xTimeOn != 0) {
-                // ensure it turns off fully :)
-                XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
-                vTaskDelay(xTimeOn);
-            }
-            XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
-            vTaskDelay(xTimeOff);
         }
+
+        if (xTimeOn != 0) {
+            // ensure it turns off fully :)
+            XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, color);
+            vTaskDelay(xTimeOn);
+        }
+        XGpio_DiscreteWrite(&rgbLedInst, RGB_CHANNEL, 0);
+        vTaskDelay(xTimeOff);
     }
 }
 
 static void vButtonsTask(void *pvParameters) {
+    const TickType_t xDelay = 100;
     u32 input_value;
     while (1) {
         input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
         xQueueOverwrite(pushbutton_to_led_handle, &input_value);
-        vTaskDelay(50);
+        vTaskDelay(xDelay);
     }
 }
 
@@ -269,11 +292,11 @@ static void vDisplayTask(void *pvParameters) {
             current_key = new_key;
         }
         
-        ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 0
+        ssd_value = SSD_decode(current_key, (u8) 1); // right side, cat = 1
         XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
         vTaskDelay(xDelay);
 
-        ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 1
+        ssd_value = SSD_decode(previous_key, (u8) 0); // left side, cat = 0
         XGpio_DiscreteWrite(&SSDInst, SSD_CHANNEL, ssd_value);
         vTaskDelay(xDelay);
     }
