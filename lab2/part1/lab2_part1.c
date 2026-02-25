@@ -137,6 +137,7 @@ int main(void) {
     xTaskCreate(Crypto_Task, "CRYPTO", 2048, NULL, 2, NULL);
 
     q_rx_byte = xQueueCreate(RX_QUEUE_LEN, sizeof(uint8_t));
+    q_tx      = xQueueCreate(TX_QUEUE_LEN, sizeof(uint8_t));
     q_cmd     = xQueueCreate(CMD_QUEUE_LEN, sizeof(crypto_request_t));
     q_result  = xQueueCreate(CMD_QUEUE_LEN, sizeof(crypto_result_t));
 
@@ -326,7 +327,13 @@ void flush_uart(void) {
         ;
 }
 
-void print_string(const char *str) {}
+void print_string(const char *str) {
+    const TickType_t xDelay = 10;
+    for (; *str != '\0'; ++str) {
+        xQueueSend(q_tx, str, 0);
+        vTaskDelay(xDelay); // XXX: May not be necessary
+    }
+}
 
 void print_new_lines(int count) {
     for (int i = 0; i < count; i++) {
