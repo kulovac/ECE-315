@@ -171,6 +171,7 @@ static void UART_RX_Task(void *pvParameters) {
         if (uart_poll_rx(&byte)) {
             xQueueSend(q_rx_byte, &byte, 0);
         }
+        vTaskDelay(pdMS_TO_TICKS(POLL_DELAY_MS));
     }
 }
 
@@ -183,7 +184,7 @@ static void UART_TX_Task(void *pvParameters) {
     char c;
 
     for (;;) {
-        if (xQueueReceive(q_tx, &c, portMAX_DELAY) == pdTRUE) {
+        if (xQueueReceive(q_tx, &c, 0) == pdTRUE) {
             uart_tx_byte((uint8_t)c);
         }
         vTaskDelay(pdMS_TO_TICKS(POLL_DELAY_MS));
