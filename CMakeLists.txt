@@ -43,4 +43,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part1/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part2/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part3/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part1/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part2/)
 
