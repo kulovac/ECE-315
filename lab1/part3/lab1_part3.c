@@ -153,6 +153,7 @@ static void vKeypadTask( void *pvParameters )
     u8 new_key;
     u16 keystate;
     XStatus status, previous_status = KYPD_NO_KEY;
+    const TickType_t xDelay = 50;
 
     xil_printf("Pmod KYPD app started. Press any key on the Keypad.\r\n");
     while (1){
@@ -176,7 +177,7 @@ static void vKeypadTask( void *pvParameters )
             xil_printf("Status changed to: %d\n", status); 
         }
         previous_status = status;
-
+        vTaskDelay(xDelay);
     }
 }
 
@@ -236,7 +237,6 @@ static void vRgbTask(void *pvParameters)
 {
     const uint8_t color = RGB_CYAN;
     const TickType_t xPeriod = 20;
-    const TickType_t xDelay = 5;
     TickType_t xTimeOn = xPeriod;
     TickType_t xTimeOff = 0;
     u32 input_value;
@@ -272,7 +272,7 @@ static void vRgbTask(void *pvParameters)
 }
 
 static void vButtonsTask(void *pvParameters) {
-    const TickType_t xDelay = 100;
+    const TickType_t xDelay = 50;
     u32 input_value;
     while (1) {
         input_value = XGpio_DiscreteRead(&pbInst, PSHBTN_CHANNEL);
