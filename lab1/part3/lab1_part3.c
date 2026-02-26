@@ -226,8 +226,8 @@ u32 SSD_decode(u8 key_value, u8 cathode)
 // opcode for the LED
 enum PWM_Control LED_decode(u32 input) {
     switch (input) {
-        case 1: return TURN_UP;
-        case 8: return TURN_DOWN;
+        case 1: return TURN_DOWN;
+        case 8: return TURN_UP;
         default: return UNKNOWN;
     }
 }
