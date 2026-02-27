@@ -318,17 +318,22 @@ void receive_string(char *buf, size_t buf_len) {
 
     while (1) {
         receive_byte(&recvd);
+
+        if (idx == buf_len) {
+            if (recvd == '\r') {
+                buf[buf_len - 1] = '\0';
+                break;
+            } else {
+                continue;
+            }
+        }
+
         if (recvd == '\r') {
             buf[idx] = '\0';
             break;
         }
 
         buf[idx++] = recvd;
-        if (idx == buf_len) {
-            buf[buf_len - 1] = '\0';
-            break;
-        }
-
         vTaskDelay(pdMS_TO_TICKS(POLL_DELAY_MS));
     }
 }
