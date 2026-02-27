@@ -1,11 +1,11 @@
 /*
- *	Lab 2: Part 2: UART in Polling Mode
+ *  Lab 2: Part 2: UART in Polling Mode
  *
- *	ECE 315		: Computer Interfacing
- *  Created on	: July 27, 2021
- *  Author	: Shyama M. Gandhi, Mazen Elbaz
+ *  ECE 315     : Computer Interfacing
+ *  Created on  : July 27, 2021
+ *  Author  : Shyama M. Gandhi, Mazen Elbaz
  *  Modified by : Antonio Andara
- *  Modified on	: January, 2026
+ *  Modified on : January, 2026
  *
  *     ------------------------------------------------------------------------------------------------------------------------------
  *
@@ -38,13 +38,13 @@
 #define UART_BASEADDR XPAR_UART1_BASEADDR
 #define RX_QUEUE_LEN 512
 #define CMD_QUEUE_LEN 16
-#define TX_QUEUE_LEN 512
+#define TX_QUEUE_LEN 512 * 2 // had to be increased to work
 
-#define INPUT_TEXT_LEN 256
-#define HASH_HEX_LEN 64 // SHA-256 hex chars
+#define INPUT_TEXT_LEN 512 // 256
+#define HASH_HEX_LEN 64    // SHA-256 hex chars
 #define HASH_LEN 32
 
-#define POLL_DELAY_MS 1000
+#define POLL_DELAY_MS 10 // changed from 1000
 
 // ======================================================
 // Types
@@ -345,10 +345,9 @@ void flush_uart(void) {
 }
 
 void print_string(const char *str) {
-    const TickType_t xDelay = 10;
+    if (str == NULL) return;
     for (; *str != '\0'; ++str) {
         xQueueSend(q_tx, str, 0);
-        vTaskDelay(xDelay); // XXX: May not be necessary
     }
 }
 
