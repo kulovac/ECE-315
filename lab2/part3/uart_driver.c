@@ -10,6 +10,7 @@
 #include "uart_driver.h"
 #include "task.h"
 #include "xuartps.h"
+#include <portmacro.h>
 #include <xil_printf.h>
 
 // -------------------------------------------------
@@ -60,7 +61,7 @@ void handleReceiveEvent()
     u8 receive_buffer;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-
+    ++countRxIrq;
     while (XUartPs_IsReceiveData(UART_BASEADDR)){
         receive_buffer = XUartPs_ReadReg(UART_BASEADDR, UART_FIFO_OFFSET);
 
@@ -79,7 +80,7 @@ void handleSentEvent()
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     u8 txByte;
 
-
+    ++countTxIrq;
     // Fill FIFO while not full and queue has data
     while (!(XUartPs_ReadReg(UART.Config.BaseAddress, XUARTPS_SR_OFFSET) & XUARTPS_SR_TXFULL)){
         if (xQueueReceiveFromISR(xTxQueue, &txByte, &xHigherPriorityTaskWoken) == pdPASS){
@@ -134,7 +135,6 @@ void mySendByte(u8 data)
     } else {
         xQueueSend(xTxQueue, &data, 0);
     }
-
     taskEXIT_CRITICAL();
 }
 
@@ -142,10 +142,8 @@ void mySendByte(u8 data)
 u8 myReceiveByte(void)
 {
     u8 buf;
-    while (xQueueReceive(xRxQueue, &buf, portMAX_DELAY) != pdPASS)
-        vTaskDelay(100);
-
-    byteCount++;
+    xQueueReceive(xRxQueue, &buf, portMAX_DELAY);
+    ++byteCount;
     return buf;
 }
 
