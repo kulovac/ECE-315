@@ -9,6 +9,7 @@
 
 #include "uart_driver.h"
 #include "task.h"
+#include "xuartps.h"
 #include <xil_printf.h>
 
 // -------------------------------------------------
@@ -96,14 +97,16 @@ void handleSentEvent()
 // -------------------------------------------------
 // TXEMPTY control
 // -------------------------------------------------
-void enableTxEmpty()
+void enableTxEmpty(void)
 {
-    
+    IntrMask |= XUARTPS_IXR_TXEMPTY;
+    XUartPs_SetInterruptMask(&UART, IntrMask);
 }
 
-void disableTxEmpty()
+void disableTxEmpty(void)
 {
-    
+    IntrMask &= ~XUARTPS_IXR_TXEMPTY;
+    XUartPs_SetInterruptMask(&UART, IntrMask);
 }
 
 // -------------------------------------------------
@@ -123,19 +126,36 @@ BaseType_t myTransmitFull(void)
 
 void mySendByte(u8 data)
 {
-    
+    taskENTER_CRITICAL();
+
+    if (XUartPs_ReadReg(UART.Config.BaseAddress, XUARTPS_SR_OFFSET) & XUARTPS_SR_TXEMPTY) {
+        XUartPs_WriteReg(UART.Config.BaseAddress, XUARTPS_FIFO_OFFSET, data);
+        enableTxEmpty();
+    } else {
+        xQueueSend(xTxQueue, &data, 0);
+    }
+
+    taskEXIT_CRITICAL();
 }
 
 
 u8 myReceiveByte(void)
 {
-    
+    u8 buf;
+    while (xQueueReceive(xRxQueue, &buf, portMAX_DELAY) != pdPASS)
+        vTaskDelay(100);
+
+    byteCount++;
+    return buf;
 }
 
 
 void mySendString(const char* str)
 {
-    
+    if (str == NULL) return;
+    for (; *str != '\0'; ++str) {
+        mySendByte(*str);
+    }
 }
 
 

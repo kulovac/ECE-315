@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 project(labs C)
+add_compile_options(-Wall -Wextra -Wpedantic)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(FREERTOS_KERNEL_PATH ${CMAKE_SOURCE_DIR}/external/FreeRTOS-Kernel)
-set(EMBEDDEDSW_ROOT     ${CMAKE_SOURCE_DIR}/external/embeddedsw)
+set(EMBEDDEDSW_ROOT      ${CMAKE_SOURCE_DIR}/external/embeddedsw)
 
 # ------------------------
 # embeddedsw drivers
@@ -16,6 +17,7 @@ target_include_directories(xilinx_drivers INTERFACE # NOTE: Add more as needed
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/scugic/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/uartps/src
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/common
+    ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/arm/common
 )
 
 # ------------------------
