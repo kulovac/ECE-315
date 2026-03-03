@@ -129,7 +129,7 @@ void mySendByte(u8 data)
 {
     taskENTER_CRITICAL();
 
-    if (XUartPs_ReadReg(UART.Config.BaseAddress, XUARTPS_SR_OFFSET) & XUARTPS_SR_TXEMPTY) {
+    if (uxQueueMessagesWaiting(xTxQueue) == 0) {
         XUartPs_WriteReg(UART.Config.BaseAddress, XUARTPS_FIFO_OFFSET, data);
         enableTxEmpty();
     } else {
