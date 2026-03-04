@@ -36,13 +36,13 @@
 // Configuration
 // ======================================================
 #define UART_BASEADDR XPAR_UART1_BASEADDR
-#define RX_QUEUE_LEN 512
+#define RX_QUEUE_LEN  512
 #define CMD_QUEUE_LEN 16
-#define TX_QUEUE_LEN 512 * 2 // had to be increased to work
+#define TX_QUEUE_LEN  (512 * 2) // had to be increased to work
 
 #define INPUT_TEXT_LEN 512 // 256
-#define HASH_HEX_LEN 64    // SHA-256 hex chars
-#define HASH_LEN 32
+#define HASH_HEX_LEN   64  // SHA-256 hex chars
+#define HASH_LEN       32
 
 #define POLL_DELAY_MS 10 // changed from 1000
 
@@ -132,7 +132,7 @@ int main(void) {
 
     xTaskCreate(UART_TX_Task, "UART_TX", 1024, NULL, 3, NULL);
 
-    xTaskCreate(CLI_Task, "CLI", 2048, init_message, 2, NULL);
+    xTaskCreate(CLI_Task, "CLI", 2048, (void *)init_message, 2, NULL);
 
     xTaskCreate(Crypto_Task, "CRYPTO", 2048, NULL, 2, NULL);
 
@@ -164,6 +164,7 @@ int main(void) {
 // ======================================================
 
 static void UART_RX_Task(void *pvParameters) {
+    (void)pvParameters;
 
     uint8_t byte;
 
@@ -180,6 +181,7 @@ static void UART_RX_Task(void *pvParameters) {
 // ======================================================
 
 static void UART_TX_Task(void *pvParameters) {
+    (void)pvParameters;
 
     char c;
 
@@ -275,6 +277,8 @@ static void CLI_Task(void *pvParameters) {
 // ======================================================
 
 static void Crypto_Task(void *pvParameters) {
+    (void)pvParameters;
+
     crypto_request_t req;
     crypto_result_t res;
 
