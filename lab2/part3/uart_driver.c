@@ -33,19 +33,18 @@ int byteCount;
 // -------------------------------------------------
 // Interrupt Handler
 // -------------------------------------------------
-void interruptHandler(void *CallBackRef, u32 event, unsigned int EventData)
-{
+void interruptHandler(void *CallBackRef, u32 event, unsigned int EventData) {
     u32 isrStatus;
 
     isrStatus = XUartPs_ReadReg(UART_BASEADDR, XUARTPS_ISR_OFFSET);
 
     // RX events
-    if (isrStatus & (XUARTPS_IXR_RXFULL | XUARTPS_IXR_RXOVR)){
+    if (isrStatus & (XUARTPS_IXR_RXFULL | XUARTPS_IXR_RXOVR)) {
         handleReceiveEvent();
     }
 
     // TX EMPTY event
-    if (isrStatus & XUARTPS_IXR_TXEMPTY){
+    if (isrStatus & XUARTPS_IXR_TXEMPTY) {
         handleSentEvent();
     }
 
@@ -56,17 +55,16 @@ void interruptHandler(void *CallBackRef, u32 event, unsigned int EventData)
 // -------------------------------------------------
 // RX ISR
 // -------------------------------------------------
-void handleReceiveEvent()
-{
+void handleReceiveEvent() {
     u8 receive_buffer;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     ++countRxIrq;
-    while (XUartPs_IsReceiveData(UART_BASEADDR)){
+
+    while (XUartPs_IsReceiveData(UART_BASEADDR)) {
         receive_buffer = XUartPs_ReadReg(UART_BASEADDR, UART_FIFO_OFFSET);
 
         xQueueSendFromISR(xRxQueue, &receive_buffer, &xHigherPriorityTaskWoken);
-
     }
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -75,16 +73,19 @@ void handleReceiveEvent()
 // -------------------------------------------------
 // TX ISR
 // -------------------------------------------------
-void handleSentEvent()
-{
+void handleSentEvent(void) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     u8 txByte;
 
     ++countTxIrq;
+
     // Fill FIFO while not full and queue has data
-    while (!(XUartPs_ReadReg(UART.Config.BaseAddress, XUARTPS_SR_OFFSET) & XUARTPS_SR_TXFULL)){
-        if (xQueueReceiveFromISR(xTxQueue, &txByte, &xHigherPriorityTaskWoken) == pdPASS){
-            XUartPs_WriteReg(UART.Config.BaseAddress, XUARTPS_FIFO_OFFSET, txByte);
+    while (!(XUartPs_ReadReg(UART.Config.BaseAddress, XUARTPS_SR_OFFSET) &
+             XUARTPS_SR_TXFULL)) {
+        if (xQueueReceiveFromISR(xTxQueue, &txByte,
+                                 &xHigherPriorityTaskWoken) == pdPASS) {
+            XUartPs_WriteReg(UART.Config.BaseAddress, XUARTPS_FIFO_OFFSET,
+                             txByte);
         } else {
             // No more data → disable TXEMPTY interrupt
             disableTxEmpty();
@@ -98,14 +99,12 @@ void handleSentEvent()
 // -------------------------------------------------
 // TXEMPTY control
 // -------------------------------------------------
-void enableTxEmpty(void)
-{
+void enableTxEmpty(void) {
     IntrMask |= XUARTPS_IXR_TXEMPTY;
     XUartPs_SetInterruptMask(&UART, IntrMask);
 }
 
-void disableTxEmpty(void)
-{
+void disableTxEmpty(void) {
     IntrMask &= ~XUARTPS_IXR_TXEMPTY;
     XUartPs_SetInterruptMask(&UART, IntrMask);
 }
@@ -113,20 +112,15 @@ void disableTxEmpty(void)
 // -------------------------------------------------
 // Public API
 // -------------------------------------------------
-BaseType_t myReceiveData(void)
-{
+BaseType_t myReceiveData(void) {
     return (uxQueueMessagesWaiting(xRxQueue) > 0);
 }
 
-
-BaseType_t myTransmitFull(void)
-{
+BaseType_t myTransmitFull(void) {
     return (uxQueueSpacesAvailable(xTxQueue) == 0);
 }
 
-
-void mySendByte(u8 data)
-{
+void mySendByte(u8 data) {
     taskENTER_CRITICAL();
 
     if (uxQueueMessagesWaiting(xTxQueue) == 0) {
@@ -138,82 +132,79 @@ void mySendByte(u8 data)
     taskEXIT_CRITICAL();
 }
 
-
-u8 myReceiveByte(void)
-{
+u8 myReceiveByte(void) {
     u8 buf;
     xQueueReceive(xRxQueue, &buf, portMAX_DELAY);
     ++byteCount;
     return buf;
 }
 
-
-void mySendString(const char* str)
-{
+void mySendString(const char *str) {
     if (str == NULL) return;
     for (; *str != '\0'; ++str) {
         mySendByte(*str);
     }
 }
 
-
 // -------------------------------------------------
 // Initialization
 // -------------------------------------------------
-int initializeUART(void)
-{
+int initializeUART(void) {
     int Status;
 
     Config = XUartPs_LookupConfig(UART_DEVICE_ID);
-    if (NULL == Config){
+    if (NULL == Config) {
         return XST_FAILURE;
     }
 
     Status = XUartPs_CfgInitialize(&UART, Config, Config->BaseAddress);
-    if (Status != XST_SUCCESS){
+    if (Status != XST_SUCCESS) {
         return XST_FAILURE;
     }
 
     return XST_SUCCESS;
 }
 
-int setupInterruptSystem(INTC *IntcInstancePtr, XUartPs *UartInstancePtr, u16 UartIntrId)
-{
+int setupInterruptSystem(INTC *IntcInstancePtr, XUartPs *UartInstancePtr,
+                         u16 UartIntrId) {
     int Status;
     XScuGic_Config *IntcConfig;
 
     IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
-    if (NULL == IntcConfig)
-        return XST_FAILURE;
+    if (NULL == IntcConfig) return XST_FAILURE;
 
-    Status = XScuGic_CfgInitialize(IntcInstancePtr, IntcConfig, IntcConfig->CpuBaseAddress);
-    if (Status != XST_SUCCESS)
-        return XST_FAILURE;
+    Status = XScuGic_CfgInitialize(IntcInstancePtr, IntcConfig,
+                                   IntcConfig->CpuBaseAddress);
+    if (Status != XST_SUCCESS) return XST_FAILURE;
 
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XScuGic_InterruptHandler, IntcInstancePtr);
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
+                                 (Xil_ExceptionHandler)XScuGic_InterruptHandler,
+                                 IntcInstancePtr);
 
-    Status = XScuGic_Connect(IntcInstancePtr, UartIntrId, (Xil_ExceptionHandler)XUartPs_InterruptHandler, (void *)UartInstancePtr);
-    if (Status != XST_SUCCESS)
-        return XST_FAILURE;
+    Status = XScuGic_Connect(IntcInstancePtr, UartIntrId,
+                             (Xil_ExceptionHandler)XUartPs_InterruptHandler,
+                             (void *)UartInstancePtr);
+    if (Status != XST_SUCCESS) return XST_FAILURE;
 
     XScuGic_Enable(IntcInstancePtr, UartIntrId);
     Xil_ExceptionEnable();
 
-    XUartPs_SetHandler(UartInstancePtr, (XUartPs_Handler)interruptHandler, UartInstancePtr);
+    XUartPs_SetHandler(UartInstancePtr, (XUartPs_Handler)interruptHandler,
+                       UartInstancePtr);
 
     // -------------------------------------------------
     // IMPORTANT: RX FIFO trigger level
     // -------------------------------------------------
-    XUartPs_SetFifoThreshold(UartInstancePtr, 1);  // interrupt triggers when FIFO <= 1
+    XUartPs_SetFifoThreshold(UartInstancePtr,
+                             1); // interrupt triggers when FIFO <= 1
 
-    // UART interrupt mask, Enable the interrupt when the receive buffer has reached a particular threshold
-	IntrMask = XUARTPS_IXR_TOUT | XUARTPS_IXR_RXFULL  |
-	           XUARTPS_IXR_RXOVR | XUARTPS_IXR_TXEMPTY;
+    // UART interrupt mask, Enable the interrupt when the receive buffer has
+    // reached a particular threshold
+    IntrMask = XUARTPS_IXR_TOUT | XUARTPS_IXR_RXFULL | XUARTPS_IXR_RXOVR |
+               XUARTPS_IXR_TXEMPTY;
 
     XUartPs_SetInterruptMask(UartInstancePtr, IntrMask);
     XUartPs_SetOperMode(UartInstancePtr, XUARTPS_OPER_MODE_NORMAL);
 
     return XST_SUCCESS;
 }
-
-

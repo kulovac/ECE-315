@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(labs C)
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_compile_options(-Wall -Wextra -Wvla)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
