@@ -253,9 +253,7 @@ static void CLI_Task(void *pvParameters) {
             xQueueSend(keypad_to_ssd_handle, buf, 0);
             xQueueSend(keypad_to_ssd_handle, buf + 1, 0);
             break;
-        default:
-            print_string("\nRTFM!!\n");
-            break;
+        default: print_string("\nRTFM!!\n"); break;
         }
         vTaskDelay(1000);
     }
@@ -300,54 +298,22 @@ u32 SSD_decode(u8 key_value, u8 cathode) {
 
     // key_value represents the code of the pressed key
     switch (key_value) { // Handles the coding of the 7-seg display
-    case 48:
-        result = 0b00111111;
-        break; // 0
-    case 49:
-        result = 0b00110000;
-        break; // 1
-    case 50:
-        result = 0b01011011;
-        break; // 2
-    case 51:
-        result = 0b01111001;
-        break; // 3
-    case 52:
-        result = 0b01110100;
-        break; // 4
-    case 53:
-        result = 0b01101101;
-        break; // 5
-    case 54:
-        result = 0b01101111;
-        break; // 6
-    case 55:
-        result = 0b00111000;
-        break; // 7
-    case 56:
-        result = 0b01111111;
-        break; // 8
-    case 57:
-        result = 0b01111100;
-        break; // 9
-    case 65:
-        result = 0b01111110;
-        break; // A
-    case 66:
-        result = 0b01100111;
-        break; // B
-    case 67:
-        result = 0b00001111;
-        break; // C
-    case 68:
-        result = 0b01110011;
-        break; // D
-    case 69:
-        result = 0b01001111;
-        break; // E
-    case 70:
-        result = 0b01001110;
-        break; // F
+    case 48: result = 0b00111111; break; // 0
+    case 49: result = 0b00110000; break; // 1
+    case 50: result = 0b01011011; break; // 2
+    case 51: result = 0b01111001; break; // 3
+    case 52: result = 0b01110100; break; // 4
+    case 53: result = 0b01101101; break; // 5
+    case 54: result = 0b01101111; break; // 6
+    case 55: result = 0b00111000; break; // 7
+    case 56: result = 0b01111111; break; // 8
+    case 57: result = 0b01111100; break; // 9
+    case 65: result = 0b01111110; break; // A
+    case 66: result = 0b01100111; break; // B
+    case 67: result = 0b00001111; break; // C
+    case 68: result = 0b01110011; break; // D
+    case 69: result = 0b01001111; break; // E
+    case 70: result = 0b01001110; break; // F
     default:
         result = 0b00000000;
         break; // default case - all seven segments are OFF
@@ -366,12 +332,9 @@ u32 SSD_decode(u8 key_value, u8 cathode) {
 // opcode for the LED
 enum PWM_Control LED_decode(u32 input) {
     switch (input) {
-    case 1:
-        return TURN_DOWN;
-    case 8:
-        return TURN_UP;
-    default:
-        return UNKNOWN;
+    case 1: return TURN_DOWN;
+    case 8: return TURN_UP;
+    default: return UNKNOWN;
     }
 }
 
@@ -406,8 +369,7 @@ static void vRgbTask(void *pvParameters) {
                 xTimeOn  = MIN(xPeriod, xTimeOn + 1);
                 xTimeOff = xPeriod - xTimeOn;
                 break;
-            case UNKNOWN:
-                break;
+            case UNKNOWN: break;
             }
         }
 

@@ -258,9 +258,7 @@ static void CLI_Task(void *pvParameters) {
             }
             break;
 
-        default:
-            print_string("\nOption not recognized\n");
-            break;
+        default: print_string("\nOption not recognized\n"); break;
         }
 
         vTaskDelay(pdMS_TO_TICKS(1000));
