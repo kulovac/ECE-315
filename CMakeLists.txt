@@ -16,6 +16,7 @@ target_include_directories(xilinx_drivers INTERFACE # NOTE: Add more as needed
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/gpio/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/scugic/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/uartps/src
+    ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/spips/src
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/common
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/arm/common
 )
@@ -47,4 +48,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lab1/part3/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part1/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part2/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part3/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lab3/part1/)
 

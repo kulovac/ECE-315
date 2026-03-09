@@ -1,0 +1,27 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Thu Mar  5 11:23:49 2026
+# Process ID         : 15596
+# Current directory  : C:/Users/Engg-User/AppData/Roaming/Xilinx/Vivado
+# Command line       : vivado.exe -gui_launcher_event rodinguilauncherevent66352
+# Log file           : C:/Users/Engg-User/AppData/Roaming/Xilinx/Vivado/vivado.log
+# Journal file       : C:/Users/Engg-User/AppData/Roaming/Xilinx/Vivado\vivado.jou
+# Running On         : LT-735460
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz
+# CPU Frequency      : 2496 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 34070 MB
+# Swap memory        : 2147 MB
+# Total Virtual      : 36217 MB
+# Available Virtual  : 12738 MB
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/Engg-User/Desktop/temp/hw/lab3_full/lab3_full.xpr
+update_compile_order -fileset sources_1
+archive_project C:/Users/Engg-User/Desktop/temp/hw/lab3_hw.xpr.zip -temp_dir C:/Users/Engg-User/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-15596-LT-735460 -force -exclude_run_results -include_local_ip_cache
