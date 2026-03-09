@@ -34,11 +34,6 @@ set(FREERTOS_PORT "TEMPLATE" CACHE STRING "" FORCE)
 
 add_subdirectory(${FREERTOS_KERNEL_PATH} FreeRTOS-Kernel)
 
-# Warnings (once, globally)
-target_compile_options(freertos_kernel PRIVATE
-    -Wall -Wextra -Wpedantic
-)
-
 # ------------------------
 # Subprojects
 # ------------------------
