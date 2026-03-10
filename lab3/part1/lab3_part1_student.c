@@ -229,7 +229,7 @@ static void vSpiMainTask(void *pvParameters) {
                     // TODO 3: echo back received bytes by sending to the
                     // appropriate queue after this is implemented spi loopback
                     // diabled should echo back the received bytes
-
+                    xQueueSend(spi_to_uart, &uart_byte, portMAX_DELAY);
                 } else { // if spi loopback is enabled prepare to send data
                          // frames
                     tx_frame[frame_index] =
