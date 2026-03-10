@@ -322,6 +322,8 @@ static void vSpiSubTask(void *pvParameters) {
 
                 // TODO 11: keep track of total received bytes over SPI and the
                 // current message byte count
+                ++message_byte_count;
+                ++total_bytes_received_over_spi;
 
                 updateRollingBuffer(rolling, current);
 
