@@ -55,10 +55,9 @@ static void spiRead(XSpiPs *inst, u8 *recvBuffer, int byteCount) {
 /******************************************************************************/
 void spiMasterWrite(const u8 *tx, int byteCount) {
     // TODO 4: write the body for this function
+    u32 addr = spiMasterInst.Config.BaseAddress;
     for (int i = 0; i < byteCount; ++i) {
-        while (
-            XSpiPs_ReadReg(spiMasterInst.Config.BaseAddress, XSPIPS_SR_OFFSET) &
-            XSPIPS_IXR_TXFULL_MASK)
+        while (XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) & XSPIPS_IXR_TXFULL_MASK)
             ;
         SpiPs_SendByte(spiMasterInst.Config.BaseAddress, tx[i]);
     }
@@ -66,6 +65,13 @@ void spiMasterWrite(const u8 *tx, int byteCount) {
 
 void spiMasterRead(u8 *rx, int byteCount) {
     // TODO 5: write the body for this function
+    u32 addr = spiMasterInst.Config.BaseAddress;
+    for (int i = 0; i < byteCount; ++i) {
+        while (!(XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) &
+                 XSPIPS_IXR_RXNEMPTY_MASK))
+            ;
+        rx[i] = SpiPs_RecvByte(spiMasterInst.Config.BaseAddress);
+    }
 }
 
 void spiMasterTransfer(const u8 *tx, u8 *rx, int byteCount) {
