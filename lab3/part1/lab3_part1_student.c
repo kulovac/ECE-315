@@ -58,6 +58,7 @@
 #include "xil_printf.h"
 #include "xparameters.h"
 #include <stddef.h>
+#include <string.h>
 
 /************************** Constant Definitions *****************************/
 #define UART_BASEADDR XPAR_UART1_BASEADDR
@@ -284,6 +285,7 @@ static void vSpiSubTask(void *pvParameters) {
     while (1) {
         if (spi_loopback && command_flag == 2) {
             // TODO 10: prepare for transmission, load data into tx_frame
+            memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
 
             if (report_stream_active) {
                 // fill tx_buffer with control characters
