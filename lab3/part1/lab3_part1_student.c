@@ -48,6 +48,8 @@
 #include "FreeRTOS.h"
 #include "my_spi.h"
 #include "my_uart.h"
+#include "portmacro.h"
+#include "projdefs.h"
 #include "queue.h"
 #include "stdio.h"
 #include "string.h"
@@ -182,12 +184,14 @@ static void vUartManagerTask(void *pvParameters) {
 
             if (uart_loopback && command_flag == 1) {
                 // TODO 1: write to uart
+                uartWriteByte(uart_byte);
 
                 if (terminationSequence(rolling)) {
                     terminateInput();
                 }
             } else if (command_flag == 2) {
                 // TODO 2: send to uart_to_spi
+                xQueueSend(uart_to_spi, &uart_byte, portMAX_DELAY);
 
                 if (!spi_loopback && terminationSequence(rolling)) {
                     terminateInput();
