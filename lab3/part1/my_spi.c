@@ -2,6 +2,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "xspips.h"
+#include "xspips_hw.h"
 #include <stddef.h>
 
 #define SpiPs_SendByte(BaseAddress, Data)                                      \
@@ -54,6 +55,13 @@ static void spiRead(XSpiPs *inst, u8 *recvBuffer, int byteCount) {
 /******************************************************************************/
 void spiMasterWrite(const u8 *tx, int byteCount) {
     // TODO 4: write the body for this function
+    for (int i = 0; i < byteCount; ++i) {
+        while (
+            XSpiPs_ReadReg(spiMasterInst.Config.BaseAddress, XSPIPS_SR_OFFSET) &
+            XSPIPS_IXR_TXFULL_MASK)
+            ;
+        SpiPs_SendByte(spiMasterInst.Config.BaseAddress, tx[i]);
+    }
 }
 
 void spiMasterRead(u8 *rx, int byteCount) {
