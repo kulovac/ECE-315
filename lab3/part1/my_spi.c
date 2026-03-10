@@ -1,6 +1,7 @@
 #include "my_spi.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "xil_types.h"
 #include "xspips.h"
 #include "xspips_hw.h"
 #include <stddef.h>
@@ -77,6 +78,8 @@ void spiMasterRead(u8 *rx, int byteCount) {
 void spiMasterTransfer(const u8 *tx, u8 *rx, int byteCount) {
     // TODO 6: write the body for this function using spiMasterWrite and
     // spiMasterRead
+    spiMasterWrite(tx, byteCount);
+    spiMasterRead(rx, byteCount);
 }
 
 /******************************************************************************
