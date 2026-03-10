@@ -58,6 +58,7 @@
 #include "xil_printf.h"
 #include "xparameters.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 /************************** Constant Definitions *****************************/
@@ -332,6 +333,7 @@ static void vSpiSubTask(void *pvParameters) {
                 if (terminationSequence(rolling)) {
                     int chunk_len;
                     // TODO 12: keep track of the number of messages received
+                    ++total_messages_received;
 
                     message_byte_count = 0;
 
