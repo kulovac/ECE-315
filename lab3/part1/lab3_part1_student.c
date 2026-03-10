@@ -243,6 +243,8 @@ static void vSpiMainTask(void *pvParameters) {
                         // perform the SPI sequence for a master data transfer
                         // (write and read) after transmission send data to
                         // queue
+                        spiMasterTransfer(tx_frame, rx_frame,
+                                          TRANSFER_SIZE_IN_BYTES);
 
                         frame_index = 0;
                     }
