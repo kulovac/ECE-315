@@ -172,6 +172,10 @@ static void vUartManagerTask(void *pvParameters) {
     while (1) {
         if (report_flag) {
             // TODO 14: send $ until a $ is received
+            xQueueSend(uart_to_spi, &dummy, portMAX_DELAY);
+            if (spi_byte == dummy) {
+                terminateInput();
+            }
         }
 
         if (uartReadByte(&uart_byte)) {
