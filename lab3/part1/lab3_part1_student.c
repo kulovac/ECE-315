@@ -339,6 +339,13 @@ static void vSpiSubTask(void *pvParameters) {
 
                     // TODO 13: generate report string. hint: use report_len =
                     // snprintf()
+                    report_len = snprintf(report, sizeof(report),
+                                          "message_byte_count = %d\n"
+                                          "total_bytes_received_over_spi = %d\n"
+                                          "total_messages_received = %d\n",
+                                          message_byte_count,
+                                          total_bytes_received_over_spi,
+                                          total_messages_received);
 
                     report_idx  = 0; // index of sent byte
                     report_flag = 1; // signals uart task to flush the report
