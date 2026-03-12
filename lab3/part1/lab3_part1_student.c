@@ -9,60 +9,75 @@
  *
  * LAB 3: Implementation of SPI in Zynq-7000
  *------------------------------------------------------------------------------
- * This lab uses SPI in polled mode. The hardware diagram has a loop back connection hard coded where SPI0 - MASTER and SPI1 - SLAVE.
- * In this code SPI0 MASTER writes to SPI1 slave. The data received by SPI1 is transmitted back to the SPI0 master.
- * The driver function used to achieve this are provided by the Xilinx as xspips.h and xspipshw_h.
+ * This lab uses SPI in polled mode. The hardware diagram has a loop back
+ * connection hard coded where SPI0 - MASTER and SPI1 - SLAVE.
+ * In this code SPI0 MASTER writes to SPI1 slave. The data received by SPI1 is
+ * transmitted back to the SPI0 master.
+ * The driver function used to achieve this are provided by the Xilinx as
+ * xspips.h and xspipshw_h.
  * They are present in the provided initialization.h header file.
  *
  * There are two commands in the menu (options in the menu).
  * 1. Toggle loop back for UART manager task enable or disable (loop back mode)
- * 2. Toggle loop back for spi0-spi1 connection enable or disable (loop back mode)
+ * 2. Toggle loop back for spi0-spi1 connection enable or disable (loop back
+ * mode)
  *
  * User enters the command in following ways:
- * For example, after you load the application on to the board, User may wish to execute the menu command 1. command is detected by using * <ENTER><1><ENTER>.
+ * For example, after you load the application on to the board, User may wish to
+ * execute the menu command 1. command is detected by using * <ENTER><1><ENTER>.
  *
  * Menu command 1:
  * Initially,
- * <ENTER><1><ENTER> can be used to change the UART Manager task loop back from enable to disable mode. This can also be done using the * * <ENTER><%><ENTER>.
- * To change the UART Manager loop back from disable to enable mode, use <ENTER><1><ENTER>.
+ * <ENTER><1><ENTER> can be used to change the UART Manager task loop back from
+ * enable to disable mode. This can also be done using the * *
+ * <ENTER><%><ENTER>.
+ * To change the UART Manager loop back from disable to enable mode, use
+ * <ENTER><1><ENTER>.
  *
  * Menu command 2:
  * Initially,
- * <ENTER><2><ENTER> enables the spi loop back. Which means the connection between SPI0 and SPI1 is enabled.
- * You can disable the spi loop back (disable the SPI 1 - SPI 0 connection) using <ENTER><2><ENTER> or <ENTER><%><ENTER>.
- * However, to enable the SPI 1 - SPI 0 connection, you must use <ENTER><2><ENTER>.
+ * <ENTER><2><ENTER> enables the spi loop back. Which means the connection
+ * between SPI0 and SPI1 is enabled.
+ * You can disable the spi loop back (disable the SPI 1 - SPI 0 connection)
+ * using <ENTER><2><ENTER> or <ENTER><%><ENTER>.
+ * However, to enable the SPI 1 - SPI 0 connection, you must use
+ * <ENTER><2><ENTER>.
  *
 /******************************************************************************/
 
 #include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "xgpio.h"
-#include "xparameters.h"
-#include "xil_printf.h"
-#include "stdio.h"
-#include <stddef.h>
-#include "string.h"
-#include "my_uart.h"
 #include "my_spi.h"
+#include "my_uart.h"
+#include "portmacro.h"
+#include "projdefs.h"
+#include "queue.h"
+#include "stdio.h"
+#include "string.h"
+#include "task.h"
+#include "xgpio.h"
+#include "xil_printf.h"
+#include "xparameters.h"
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
 
 /************************** Constant Definitions *****************************/
-#define UART_BASEADDR            XPAR_UART1_BASEADDR
-#define SPI0_BASEADDR            XPAR_SPI0_BASEADDR
-#define SPI1_BASEADDR            XPAR_SPI1_BASEADDR
-#define RGB_LED_ADDR             XPAR_GPIO_LEDS_BASEADDR
-#define RGB_CHANNEL              2
+#define UART_BASEADDR XPAR_UART1_BASEADDR
+#define SPI0_BASEADDR XPAR_SPI0_BASEADDR
+#define SPI1_BASEADDR XPAR_SPI1_BASEADDR
+#define RGB_LED_ADDR  XPAR_GPIO_LEDS_BASEADDR
+#define RGB_CHANNEL   2
 
-#define CHAR_CARRIAGE_RETURN     0x0D
-#define CHAR_PERCENT             0x25
-#define CHAR_DOLLAR              0x24
+#define CHAR_CARRIAGE_RETURN 0x0D
+#define CHAR_PERCENT         0x25
+#define CHAR_DOLLAR          0x24
 
-#define LED_RED                  0x4
-#define LED_GREEN                0x2
-#define LED_BLUE                 0x1
-#define LED_OFF                  0x0
+#define LED_RED   0x4
+#define LED_GREEN 0x2
+#define LED_BLUE  0x1
+#define LED_OFF   0x0
 
-#define QUEUE_LENGTH             256
+#define QUEUE_LENGTH 256
 
 /************************* Task Prototypes ***********************************/
 static void vUartManagerTask(void *pvParameters);
@@ -84,20 +99,20 @@ static QueueHandle_t uart_to_spi = NULL;
 static QueueHandle_t spi_to_uart = NULL;
 
 static volatile u8 uart_loopback = 0;
-static volatile u8 spi_loopback = 0; 	/* 0: local SPI-main loopback 1: real main-sub loop */
-static volatile u8 command_flag = 1;    /* 1: UART mode, 2: SPI mode */
-static volatile u8 report_flag = 0;     /* Set by SPI sub when report is ready */
+static volatile u8 spi_loopback =
+    0; /* 0: local SPI-main loopback 1: real main-sub loop */
+static volatile u8 command_flag = 1; /* 1: UART mode, 2: SPI mode */
+static volatile u8 report_flag  = 0; /* Set by SPI sub when report is ready */
 
 static volatile int total_bytes_received_over_spi = 0;
-static volatile int last_message_byte_count = 0;
-static volatile int total_messages_received = 0;
+static volatile int last_message_byte_count       = 0;
+static volatile int total_messages_received       = 0;
 
 /******************************************************************************
 /* MAIN */
 /******************************************************************************/
 
-int main(void)
-{
+int main(void) {
     int status;
 
     status = uartInit(UART_BASEADDR);
@@ -147,25 +162,27 @@ int main(void)
 /* UART MANAGER TASK */
 /******************************************************************************/
 
-static void vUartManagerTask(void *pvParameters)
-{
+static void vUartManagerTask(void *pvParameters) {
     const u8 dummy = CHAR_DOLLAR;
-    u8 rolling[3] = {0, 0, CHAR_CARRIAGE_RETURN};
-    u8 uart_byte = 0;
-    u8 spi_byte = 0;
+    u8 rolling[3]  = {0, 0, CHAR_CARRIAGE_RETURN};
+    u8 uart_byte   = 0;
+    u8 spi_byte    = 0;
     int i;
 
     while (1) {
         if (report_flag) {
             // TODO 14: send $ until a $ is received
-			
+            xQueueSend(uart_to_spi, &dummy, portMAX_DELAY);
+            if (spi_byte == dummy) {
+                terminateInput();
+            }
         }
-        
+
         if (uartReadByte(&uart_byte)) {
             updateRollingBuffer(rolling, uart_byte);
-			
-			// use checkCommand() before taking any action
-			// if a command is verified then continue with the next iteration
+
+            // use checkCommand() before taking any action
+            // if a command is verified then continue with the next iteration
             if (checkCommand(rolling)) {
                 vTaskDelay(1);
                 continue;
@@ -173,12 +190,14 @@ static void vUartManagerTask(void *pvParameters)
 
             if (uart_loopback && command_flag == 1) {
                 // TODO 1: write to uart
+                uartWriteByte(uart_byte);
 
                 if (terminationSequence(rolling)) {
                     terminateInput();
                 }
             } else if (command_flag == 2) {
-				// TODO 2: send to uart_to_spi
+                // TODO 2: send to uart_to_spi
+                xQueueSend(uart_to_spi, &uart_byte, portMAX_DELAY);
 
                 if (!spi_loopback && terminationSequence(rolling)) {
                     terminateInput();
@@ -198,8 +217,7 @@ static void vUartManagerTask(void *pvParameters)
 /* SPI MAIN TASK */
 /******************************************************************************/
 
-static void vSpiMainTask(void *pvParameters)
-{
+static void vSpiMainTask(void *pvParameters) {
     u8 uart_byte = 0;
     u8 tx_frame[TRANSFER_SIZE_IN_BYTES];
     u8 rx_frame[TRANSFER_SIZE_IN_BYTES];
@@ -212,19 +230,27 @@ static void vSpiMainTask(void *pvParameters)
     while (1) {
         if (xQueueReceive(uart_to_spi, &uart_byte, 0)) {
             if (command_flag == 2) {
-                if (!spi_loopback) { // if spi_loopback is disabled echoes back the received bytes
-                    // TODO 3: echo back received bytes by sending to the appropriate queue
-					// after this is implemented spi loopback diabled should echo back the received bytes
-					
-                } else {		// if spi loopback is enabled prepare to send data frames
-                    tx_frame[frame_index] = uart_byte; // load byte into data frame
+                if (!spi_loopback) { // if spi_loopback is disabled echoes back
+                                     // the received bytes
+                    // TODO 3: echo back received bytes by sending to the
+                    // appropriate queue after this is implemented spi loopback
+                    // diabled should echo back the received bytes
+                    xQueueSend(spi_to_uart, &uart_byte, portMAX_DELAY);
+                } else { // if spi loopback is enabled prepare to send data
+                         // frames
+                    tx_frame[frame_index] =
+                        uart_byte; // load byte into data frame
                     frame_index++;
-					
-					// when data frame is complete transmmit data using the spi write and sepi read functions
+
+                    // when data frame is complete transmmit data using the spi
+                    // write and sepi read functions
                     if (frame_index == TRANSFER_SIZE_IN_BYTES) {
-						// TODO 9: master transfer
-						// perform the SPI sequence for a master data transfer (write and read)
-						// after transmission send data to queue
+                        // TODO 9: master transfer
+                        // perform the SPI sequence for a master data transfer
+                        // (write and read) after transmission send data to
+                        // queue
+                        spiMasterTransfer(tx_frame, rx_frame,
+                                          TRANSFER_SIZE_IN_BYTES);
 
                         frame_index = 0;
                     }
@@ -246,15 +272,14 @@ static void vSpiMainTask(void *pvParameters)
 /* SPI SUB TASK */
 /******************************************************************************/
 
-static void vSpiSubTask(void *pvParameters)
-{
+static void vSpiSubTask(void *pvParameters) {
     u8 tx_frame[TRANSFER_SIZE_IN_BYTES];
     u8 rx_frame[TRANSFER_SIZE_IN_BYTES];
     u8 rolling[3] = {0, 0, 0};
     char report[256];
-    int report_len = 0;
-    int report_idx = 0;
-    int message_byte_count = 0;
+    int report_len                  = 0;
+    int report_idx                  = 0;
+    int message_byte_count          = 0;
     BaseType_t report_stream_active = pdFALSE;
     int i;
 
@@ -264,10 +289,11 @@ static void vSpiSubTask(void *pvParameters)
 
     while (1) {
         if (spi_loopback && command_flag == 2) {
-			// TODO 10: prepare for transmission, load data into tx_frame
-			
-			if (report_stream_active) {
-				// fill tx_buffer with control characters
+            // TODO 10: prepare for transmission, load data into tx_frame
+            memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
+
+            if (report_stream_active) {
+                // fill tx_buffer with control characters
                 memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
 
                 if (report_idx < report_len) {
@@ -276,7 +302,7 @@ static void vSpiSubTask(void *pvParameters)
                     if (chunk_len > TRANSFER_SIZE_IN_BYTES) {
                         chunk_len = TRANSFER_SIZE_IN_BYTES;
                     }
-					// load report chunk to tx frame
+                    // load report chunk to tx frame
                     memcpy(tx_frame, &report[report_idx], (size_t)chunk_len);
                     report_idx += chunk_len;
                 } else {
@@ -286,41 +312,56 @@ static void vSpiSubTask(void *pvParameters)
                 vTaskDelay(1);
                 continue;
             }
-			
-            // in normal operation the device copies rx_frame into tx_frame in order to echo the characters
-			memcpy(tx_frame, rx_frame, TRANSFER_SIZE_IN_BYTES);
+
+            // in normal operation the device copies rx_frame into tx_frame in
+            // order to echo the characters
+            memcpy(tx_frame, rx_frame, TRANSFER_SIZE_IN_BYTES);
 
             for (i = 0; i < TRANSFER_SIZE_IN_BYTES; i++) {
                 u8 current = rx_frame[i];
-				
-				// ignore any received control characters
+
+                // ignore any received control characters
                 if (current == CHAR_DOLLAR) {
                     continue;
                 }
-				
-				// TODO 11: keep track of total received bytes over SPI and the current message byte count
+
+                // TODO 11: keep track of total received bytes over SPI and the
+                // current message byte count
+                ++message_byte_count;
+                ++total_bytes_received_over_spi;
 
                 updateRollingBuffer(rolling, current);
 
-                // if termination sequence is detected set report_stream_active = pdTRUE
-				if (terminationSequence(rolling)) {
+                // if termination sequence is detected set report_stream_active
+                // = pdTRUE
+                if (terminationSequence(rolling)) {
                     int chunk_len;
-					// TODO 12: keep track of the number of messages received
-
+                    // TODO 12: keep track of the number of messages received
+                    ++total_messages_received;
 
                     message_byte_count = 0;
-					
-					// TODO 13: generate report string. hint: use report_len = snprintf()
 
-                    report_idx = 0;  // index of sent byte
+                    // TODO 13: generate report string. hint: use report_len =
+                    // snprintf()
+                    report_len = snprintf(report, sizeof(report),
+                                          "message_byte_count = %d\n"
+                                          "total_bytes_received_over_spi = %d\n"
+                                          "total_messages_received = %d\n",
+                                          message_byte_count,
+                                          total_bytes_received_over_spi,
+                                          total_messages_received);
+
+                    report_idx  = 0; // index of sent byte
                     report_flag = 1; // signals uart task to flush the report
                     report_stream_active = pdTRUE; // local flag
-					
-					// prepare to send first chunk of the report
-					// all other chunks will be taken care of by the block on the beginning
+
+                    // prepare to send first chunk of the report
+                    // all other chunks will be taken care of by the block on
+                    // the beginning
                     memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
                     chunk_len = TRANSFER_SIZE_IN_BYTES;
-                    memcpy(tx_frame, &report[report_idx], TRANSFER_SIZE_IN_BYTES);
+                    memcpy(tx_frame, &report[report_idx],
+                           TRANSFER_SIZE_IN_BYTES);
                     report_idx += chunk_len;
                     break;
                 }
@@ -328,9 +369,9 @@ static void vSpiSubTask(void *pvParameters)
         } else { // reset device
             memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
             memset(rolling, 0, sizeof(rolling));
-            message_byte_count = 0;
-            report_len = 0;
-            report_idx = 0;
+            message_byte_count   = 0;
+            report_len           = 0;
+            report_idx           = 0;
             report_stream_active = pdFALSE;
         }
 
@@ -342,8 +383,7 @@ static void vSpiSubTask(void *pvParameters)
 /* RGB LED TASK */
 /******************************************************************************/
 
-static void vRgbLedTask(void *pvParameters)
-{
+static void vRgbLedTask(void *pvParameters) {
     u32 led_value = LED_OFF;
 
     while (1) {
@@ -366,17 +406,14 @@ static void vRgbLedTask(void *pvParameters)
 /* Helpers */
 /******************************************************************************/
 
-static void updateRollingBuffer(u8 rolling[3], u8 byte)
-{
+static void updateRollingBuffer(u8 rolling[3], u8 byte) {
     rolling[0] = rolling[1];
     rolling[1] = rolling[2];
     rolling[2] = byte;
 }
 
-static BaseType_t terminationSequence(const u8 rolling[3])
-{
-    if ((rolling[0] == CHAR_CARRIAGE_RETURN) &&
-        (rolling[1] == CHAR_PERCENT) &&
+static BaseType_t terminationSequence(const u8 rolling[3]) {
+    if ((rolling[0] == CHAR_CARRIAGE_RETURN) && (rolling[1] == CHAR_PERCENT) &&
         (rolling[2] == CHAR_CARRIAGE_RETURN)) {
         return pdTRUE;
     }
@@ -384,15 +421,15 @@ static BaseType_t terminationSequence(const u8 rolling[3])
     return pdFALSE;
 }
 
-static BaseType_t checkCommand(const u8 rolling[3])
-{
-    if ((rolling[0] == CHAR_CARRIAGE_RETURN) && (rolling[2] == CHAR_CARRIAGE_RETURN)) {
+static BaseType_t checkCommand(const u8 rolling[3]) {
+    if ((rolling[0] == CHAR_CARRIAGE_RETURN) &&
+        (rolling[2] == CHAR_CARRIAGE_RETURN)) {
         if (rolling[1] == '1') {
             uart_loopback = (uart_loopback == 0) ? 1 : 0;
-            command_flag = 1;
+            command_flag  = 1;
 
             xil_printf("\r\n*** UART Loop-back %s ***\r\n",
-                (uart_loopback == 1) ? "ON" : "OFF");
+                       (uart_loopback == 1) ? "ON" : "OFF");
 
             return pdTRUE;
         }
@@ -402,7 +439,7 @@ static BaseType_t checkCommand(const u8 rolling[3])
             command_flag = 2;
 
             xil_printf("\r\n*** SPI Loop-back %s ***\r\n",
-                (spi_loopback == 1) ? "ON" : "OFF");
+                       (spi_loopback == 1) ? "ON" : "OFF");
 
             return pdTRUE;
         }
@@ -411,19 +448,18 @@ static BaseType_t checkCommand(const u8 rolling[3])
     return pdFALSE;
 }
 
-static void terminateInput(void)
-{
-    command_flag = 1;
-    report_flag = 0;
-    spi_loopback = 0;
+static void terminateInput(void) {
+    command_flag  = 1;
+    report_flag   = 0;
+    spi_loopback  = 0;
     uart_loopback = 0;
 
     xil_printf("\r\n*** Text entry ended using termination sequence ***\r\n");
 }
 
-static void printMenu(void)
-{
-    xil_printf("\r\n================ ECE-315 Lab 3: UART + SPI =================\r\n");
+static void printMenu(void) {
+    xil_printf(
+        "\r\n================ ECE-315 Lab 3: UART + SPI =================\r\n");
     xil_printf("Commands: <ENTER>1<ENTER> toggles UART loopback mode\r\n");
     xil_printf("          <ENTER>2<ENTER> toggles SPI loopback mode\r\n");
     xil_printf("Termination sequence: <ENTER>%<ENTER>\r\n");
