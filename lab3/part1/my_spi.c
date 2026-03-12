@@ -56,23 +56,12 @@ static void spiRead(XSpiPs *inst, u8 *recvBuffer, int byteCount) {
 /******************************************************************************/
 void spiMasterWrite(const u8 *tx, int byteCount) {
     // TODO 4: write the body for this function
-    u32 addr = spiMasterInst.Config.BaseAddress;
-    for (int i = 0; i < byteCount; ++i) {
-        while (XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) & XSPIPS_IXR_TXFULL_MASK)
-            ;
-        SpiPs_SendByte(addr, tx[i]);
-    }
+    spiWrite(&spiMasterInst, tx, byteCount);
 }
 
 void spiMasterRead(u8 *rx, int byteCount) {
     // TODO 5: write the body for this function
-    u32 addr = spiMasterInst.Config.BaseAddress;
-    for (int i = 0; i < byteCount; ++i) {
-        while (!(XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) &
-                 XSPIPS_IXR_RXNEMPTY_MASK))
-            ;
-        rx[i] = SpiPs_RecvByte(addr);
-    }
+    spiRead(&spiMasterInst, rx, byteCount);
 }
 
 void spiMasterTransfer(const u8 *tx, u8 *rx, int byteCount) {
@@ -87,23 +76,12 @@ void spiMasterTransfer(const u8 *tx, u8 *rx, int byteCount) {
 /******************************************************************************/
 void spiSlaveWrite(const u8 *tx, int byteCount) {
     // TODO 7: write the body for this function
-    u32 addr = spiSlaveInst.Config.BaseAddress;
-    for (int i = 0; i < byteCount; ++i) {
-        while (XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) & XSPIPS_IXR_TXFULL_MASK)
-            ;
-        SpiPs_SendByte(addr, tx[i]);
-    }
+    spiWrite(&spiSlaveInst, tx, byteCount);
 }
 
 void spiSlaveRead(u8 *rx, int byteCount) {
     // TODO 8: write the body for this function
-    u32 addr = spiSlaveInst.Config.BaseAddress;
-    for (int i = 0; i < byteCount; ++i) {
-        while (!(XSpiPs_ReadReg(addr, XSPIPS_SR_OFFSET) &
-                 XSPIPS_IXR_RXNEMPTY_MASK))
-            ;
-        rx[i] = SpiPs_RecvByte(addr);
-    }
+    spiRead(&spiSlaveInst, rx, byteCount);
 }
 
 void spiSlaveTransfer(const u8 *tx, u8 *rx, int byteCount) {
