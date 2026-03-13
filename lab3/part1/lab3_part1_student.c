@@ -172,6 +172,7 @@ static void vUartManagerTask(void *pvParameters) {
     while (1) {
         if (report_flag) {
             // TODO 14: send $ until a $ is received
+            // FIXME: while loop this
             xQueueSend(uart_to_spi, &dummy, portMAX_DELAY);
             if (spi_byte == dummy) {
                 terminateInput();
@@ -290,6 +291,7 @@ static void vSpiSubTask(void *pvParameters) {
     while (1) {
         if (spi_loopback && command_flag == 2) {
             // TODO 10: prepare for transmission, load data into tx_frame
+            // FIXME: spi tx frame slave transfer
             memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
 
             if (report_stream_active) {
@@ -339,6 +341,7 @@ static void vSpiSubTask(void *pvParameters) {
                     // TODO 12: keep track of the number of messages received
                     ++total_messages_received;
 
+                    // FIXME: move down
                     message_byte_count = 0;
 
                     // TODO 13: generate report string. hint: use report_len =
@@ -347,8 +350,8 @@ static void vSpiSubTask(void *pvParameters) {
                                           "message_byte_count = %d\n"
                                           "total_bytes_received_over_spi = %d\n"
                                           "total_messages_received = %d\n",
-                                          message_byte_count,
-                                          total_bytes_received_over_spi,
+                                          message_byte_count, // FIXME: - 3
+                                          total_bytes_received_over_spi, // XXX: - 3 *msg_recv
                                           total_messages_received);
 
                     report_idx  = 0; // index of sent byte
