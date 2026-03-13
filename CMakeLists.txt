@@ -44,4 +44,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part1/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part2/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab2/part3/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lab3/part1/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lab3/pmod_oled_example/)
 
