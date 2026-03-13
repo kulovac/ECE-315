@@ -68,6 +68,7 @@ void spiMasterTransfer(const u8 *tx, u8 *rx, int byteCount) {
     // TODO 6: write the body for this function using spiMasterWrite and
     // spiMasterRead
     spiMasterWrite(tx, byteCount);
+    vTaskDelay(1);
     spiMasterRead(rx, byteCount);
 }
 

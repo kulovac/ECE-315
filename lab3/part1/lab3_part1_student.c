@@ -1,11 +1,11 @@
 /******************************************************************************/
-/* ECE - 315 	: WINTER 2021
- * Created on 	: 07 August, 2021
+/* ECE - 315    : WINTER 2021
+ * Created on   : 07 August, 2021
  *
- * Created by	: Shyama M. Gandhi, Mazen Elbaz
- * Modified by	: Shyama M. Gandhi, Winter 2023
- * Modified by	: Antonio Andara Lara, Winter 2025
- * Modified by	: Antonio Andara Lara, Winter 2026
+ * Created by   : Shyama M. Gandhi, Mazen Elbaz
+ * Modified by  : Shyama M. Gandhi, Winter 2023
+ * Modified by  : Antonio Andara Lara, Winter 2025
+ * Modified by  : Antonio Andara Lara, Winter 2026
  *
  * LAB 3: Implementation of SPI in Zynq-7000
  *------------------------------------------------------------------------------
@@ -172,11 +172,18 @@ static void vUartManagerTask(void *pvParameters) {
     while (1) {
         if (report_flag) {
             // TODO 14: send $ until a $ is received
-            // FIXME: while loop this
-            xQueueSend(uart_to_spi, &dummy, portMAX_DELAY);
-            if (spi_byte == dummy) {
-                terminateInput();
+            while (1) {
+                xQueueSend(uart_to_spi, &dummy, portMAX_DELAY);
+                xQueueReceive(spi_to_uart, &spi_byte, portMAX_DELAY);
+
+                if (spi_byte != CHAR_DOLLAR) {
+                    uartWriteByte(spi_byte);
+                } else {
+                    break;
+                }
             }
+
+            terminateInput();
         }
 
         if (uartReadByte(&uart_byte)) {
@@ -198,7 +205,7 @@ static void vUartManagerTask(void *pvParameters) {
                 }
             } else if (command_flag == 2) {
                 // TODO 2: send to uart_to_spi
-                xQueueSend(uart_to_spi, &uart_byte, portMAX_DELAY);
+                xQueueSend(uart_to_spi, &uart_byte, 0);
 
                 if (!spi_loopback && terminationSequence(rolling)) {
                     terminateInput();
@@ -207,7 +214,9 @@ static void vUartManagerTask(void *pvParameters) {
         }
 
         while (xQueueReceive(spi_to_uart, &spi_byte, 0)) {
-            uartWriteByte(spi_byte);
+            if (spi_byte != CHAR_DOLLAR) {
+                uartWriteByte(spi_byte);
+            }
         }
 
         vTaskDelay(1);
@@ -236,7 +245,7 @@ static void vSpiMainTask(void *pvParameters) {
                     // TODO 3: echo back received bytes by sending to the
                     // appropriate queue after this is implemented spi loopback
                     // diabled should echo back the received bytes
-                    xQueueSend(spi_to_uart, &uart_byte, portMAX_DELAY);
+                    xQueueSend(spi_to_uart, &uart_byte, 0);
                 } else { // if spi loopback is enabled prepare to send data
                          // frames
                     tx_frame[frame_index] =
@@ -253,6 +262,7 @@ static void vSpiMainTask(void *pvParameters) {
                         spiMasterTransfer(tx_frame, rx_frame,
                                           TRANSFER_SIZE_IN_BYTES);
 
+                        xQueueSend(spi_to_uart, rx_frame, portMAX_DELAY);
                         frame_index = 0;
                     }
                 }
@@ -289,10 +299,9 @@ static void vSpiSubTask(void *pvParameters) {
     memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
 
     while (1) {
-        if (spi_loopback && command_flag == 2) {
-            // TODO 10: prepare for transmission, load data into tx_frame
-            // FIXME: spi tx frame slave transfer
-            memset(tx_frame, CHAR_DOLLAR, TRANSFER_SIZE_IN_BYTES);
+        if (spi_loopback && (command_flag == 2)) {
+            // TODO 10: SPI TX frame slave transfer
+            spiSlaveTransfer(tx_frame, rx_frame, TRANSFER_SIZE_IN_BYTES);
 
             if (report_stream_active) {
                 // fill tx_buffer with control characters
@@ -341,18 +350,22 @@ static void vSpiSubTask(void *pvParameters) {
                     // TODO 12: keep track of the number of messages received
                     ++total_messages_received;
 
-                    // FIXME: move down
-                    message_byte_count = 0;
-
                     // TODO 13: generate report string. hint: use report_len =
                     // snprintf()
-                    report_len = snprintf(report, sizeof(report),
-                                          "message_byte_count = %d\n"
-                                          "total_bytes_received_over_spi = %d\n"
-                                          "total_messages_received = %d\n",
-                                          message_byte_count, // FIXME: - 3
-                                          total_bytes_received_over_spi, // XXX: - 3 *msg_recv
-                                          total_messages_received);
+                    int roll_size = sizeof(rolling);
+                    message_byte_count -=
+                        roll_size; // excludes termination sequence
+                    total_bytes_received_over_spi -= roll_size;
+
+                    report_len = snprintf(
+                        report, sizeof(report),
+                        "\nmessage_byte_count = %d\n"
+                        "total_bytes_received_over_spi = %d\n"
+                        "total_messages_received = %d\n",
+                        message_byte_count, // excludes termination sequence
+                        total_bytes_received_over_spi, total_messages_received);
+
+                    message_byte_count = 0; // reset
 
                     report_idx  = 0; // index of sent byte
                     report_flag = 1; // signals uart task to flush the report
