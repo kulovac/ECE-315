@@ -25,11 +25,12 @@
 #define KYPD_DEVICE_ID 		XPAR_GPIO_KEYPAD_BASEADDR
 #define KYPD_BASE_ADDR 		XPAR_GPIO_KEYPAD_BASEADDR
 #define SSD_DEVICE_ID		XPAR_GPIO_SSD_BASEADDR
-#define BTN_CHANNEL    1
+#define BTN_CHANNEL    		1
+#define SSD_CHANNEL	   		2
 
 
-#define FRAME_DELAY 50000
-
+#define FRAME_DELAY_MS 200
+#define GAME_OVER_TIME_MS 2000
 // keypad key table
 #define DEFAULT_KEYTABLE 	"0FED789C456B123A"
 
@@ -60,6 +61,14 @@ static void oledTask( void *pvParameters );
 static void buttonTask( void *pvParameters );
 static void ssdTask( void *pvParameters );
 u32 SSD_decode(u8 key_value, u8 cathode);
+snake_block *start_game(void);
+snake_block *create_consumable(void);
+void draw_snake(snake_block *block);
+void draw_block(int x, int y, int sz);
+void move_snake(snake_block *block, u8 current_direction);
+void consume_point(snake_block *head, snake_block *consumable, u8 current_direction);
+int update_game(snake_block **head, snake_block **consumable, u8 current_direction);
+void game_over(snake_block **head, snake_block **consumable);
 
 
 const u8 orientation = 0x0; // Set up for Normal PmodOLED(false) vs normal
@@ -70,8 +79,6 @@ u8 keypad_val = 'x';
 
 typedef struct snake_block {
     struct snake_block *next; 
-    
-	u8 direction;
     u8 x;
     u8 y;
 } snake_block;
@@ -85,9 +92,19 @@ enum directions {
 	NONE = 0
 };
 
+enum game_states {
+	PLAY = 0,
+	MENU = 2,
+	GAME_OVER = 4
+};
+
+// FreeRTOS queue handles
+QueueHandle_t xDirectionQueue;
+QueueHandle_t xButtonQueue;
+QueueHandle_t xScoreQueue;
+
 // Game values
 u8 score = 0;
-u8 current_direction = NONE;
 
 int main()
 {
@@ -114,6 +131,11 @@ int main()
 
 
 	xil_printf(init_message);
+
+	// ------------ Create Queues ------------
+    xDirectionQueue = xQueueCreate(10, sizeof(u8));
+    xButtonQueue    = xQueueCreate(5, sizeof(u8));
+	xScoreQueue		= xQueueCreate(2, sizeof(u8));
 
 	// ------------ Create Tasks ------------
 	xTaskCreate( keypadTask					/* The function that implements the task. */
@@ -179,14 +201,15 @@ static void keypadTask( void *pvParameters ) {
 		// detect if a new key is pressed (if status has changed)
 		if (status == KYPD_SINGLE_KEY && last_status == KYPD_NO_KEY) {
 			// update snake direction
-			current_direction = new_key;
+			xQueueSend(xDirectionQueue, &new_key, 0);
+			
 			xil_printf("Keypad button pressed: %x\r\n", new_key); // TODO: REMOVE
 		} else if (status == KYPD_MULTI_KEY && last_status == KYPD_SINGLE_KEY) {
 			// if new key and last keys pressed overlap
 			if ((keystate & last_keystate) != 0) {
 				// new keys take precedent
                 KYPD_getKeyPressed(&KYPDInst, (keystate & ~last_keystate), &new_key);
-                current_direction = new_key;
+                xQueueSend(xDirectionQueue, &new_key, 0);
 
                 xil_printf("Overlapping key pressed: %x\r\n", new_key); // TODO: REMOVE
 			}
@@ -202,21 +225,52 @@ static void keypadTask( void *pvParameters ) {
 // Actual displaying task
 static void oledTask( void *pvParameters )
 {
-	u8 buttonVal = 0;
-	char temp[10];
+	u8 current_button_state = 0; // local state for the menu
+    u8 current_direction = NONE;
+    u8 previous_score = 0;
+    char temp[10];
+
+	u8 incoming_btn;
+	u8 incoming_dir;
 
 	OLED_SetDrawMode(&oledDevice, 0); // draw mode == set mode
 	OLED_SetCharUpdate(&oledDevice, 0); // automatic updating off
 
 	snake_block *head = start_game();
-
+	snake_block *consumable = create_consumable();
+	
 	while(1) {
-		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
-		if (buttonVal == 0) {
+		// Check for pushbutton press
+        if (xQueueReceive(xButtonQueue, &incoming_btn, 0) == pdPASS) {
+            current_button_state = incoming_btn;
+        }
+
+        if (xQueueReceive(xDirectionQueue, &incoming_dir, 0) == pdPASS) {
+            current_direction = incoming_dir;
+        }
+		if (current_button_state == PLAY) {
+			OLED_ClearBuffer(&oledDevice);
+
+			// draw the game elements
 			draw_snake(head);
-			draw_consumable();
-			update_game();
-		} else if (buttonVal == 2) {
+			draw_snake(consumable);
+			
+			// update the screen
+			OLED_Update(&oledDevice);
+			
+			// update game logic
+			int is_alive = update_game(&head, &consumable, current_direction);
+			
+			// broadcast new score
+			if (score != previous_score) {
+                xQueueSend(xScoreQueue, &score, 0);
+                previous_score = score;
+            }
+
+			if (is_alive == 0) {
+				current_button_state == GAME_OVER; // force game over
+			}
+		} else if (current_button_state == MENU) {
 			OLED_ClearBuffer(&oledDevice);
 
 			// show score on the OLED
@@ -232,49 +286,55 @@ static void oledTask( void *pvParameters )
 			OLED_PutString(&oledDevice, temp);
 
 			OLED_Update(&oledDevice);
+		} else if (current_button_state == GAME_OVER) {
+			game_over(&head, &consumable);
 		}
+		vTaskDelay(pdMS_TO_TICKS(FRAME_DELAY_MS));
 	}
 }
 
 // Shows menu options
 static void buttonTask( void *pvParameters )
 {
-	const TickType_t xDelay = 10; // can be changed later
+    const TickType_t xDelay = pdMS_TO_TICKS(20); // debounce delay
+    u8 buttonVal = 0;
+    u8 lastButtonVal = 0;
 
-	u8 buttonVal = 0;
-	while(1) {
-		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
+    while(1) {
+        buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
+        
+        // only send to queue if the button state actually changed
+        if (buttonVal != lastButtonVal) {
+            xQueueSend(xButtonQueue, &buttonVal, 0);
+            lastButtonVal = buttonVal;
+        }
 
-		vTaskDelay(xDelay);
-	}
+        vTaskDelay(xDelay);
+    }
 }
 
 // Displays points on the SSD
 static void ssdTask(void *pvParameters) {
-	const TickType_t xDelay = 10; // switch time (can be changed later)
-	
-	const u8 left_side = 0x1;
-	const u8 right_side = 0x0; 
+    const TickType_t xDelay = pdMS_TO_TICKS(10); 
+    const u8 left_side = 0x1;
+    const u8 right_side = 0x0; 
 
-	u32 display_val = 0;
-	u8 ones_digit = 0;
-	u8 tens_digit = 0;
+    u8 local_score = 0; // Store the score locally!
+    u32 display_val = 0;
 
-	while(1) {
-		// display the ones digit of the score on the SSD
-		ones_digit = score % 10;
-		display_val = SSD_decode(ones_digit, right_side);
-		XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
-		
-		vTaskDelay(xDelay);
+    while(1) {
+        xQueueReceive(xScoreQueue, &local_score, 0);
 
-		// display the tens digit of the score on the SSD
-		tens_digit = (score / 10) % 10;
-		display_val = SSD_decode(tens_digit, left_side);
-		XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
+        // display the ones digit
+        display_val = SSD_decode(local_score % 10, right_side);
+        XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
+        vTaskDelay(xDelay);
 
-		vTaskDelay(xDelay);
-	}
+        // display the tens digit
+        display_val = SSD_decode((local_score / 10) % 10, left_side);
+        XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
+        vTaskDelay(xDelay);
+    }
 }
 
 u32 SSD_decode(u8 num, u8 cathode) {
@@ -308,31 +368,18 @@ snake_block *start_game(void) {
 	score = 0;
 	snake_block *head = malloc(sizeof(snake_block));
 	head->next = NULL;
-	head->direction = NONE;
 	head->x = 0;
 	head->y = 0;
-}
 
-snake_block *create_snake_block(snake_block *next) {
-	if (next == NULL) {
-		xil_printf("nullptr error in create_snake_block\n");
-		return;
-	}
-	snake_block *new_block = malloc(sizeof(snake_block));
-	new_block->next = next;
-	new_block->direction = next->direction;
-	
-	// TODO: add offsets
-	new_block->x = 0;
-	new_block->y = 0;
+	return head;
 }
 
 void free_snake_block(snake_block *block) {
-	if (block->next == NULL) {
-		free(block);
-		return;
-	}
-	free_snake_block(block->next);
+    if (block == NULL) {
+        return;
+    }
+    free_snake_block(block->next); // travel to the very end first
+    free(block); // free the block on the way back out
 }
 
 void draw_snake(snake_block *block) {
@@ -346,25 +393,121 @@ void draw_snake(snake_block *block) {
 }
 
 // TODO: maybe check the snake to avoid overlap
-void draw_consumable(snake_block *block) {
+snake_block *create_consumable(void) {
 	int x_pos = (rand() % NUM_X_CELLS) * SNAKE_BLOCK_SIZE;
 	int y_pos = (rand() % NUM_Y_CELLS) * SNAKE_BLOCK_SIZE;
 	const int half_size = SNAKE_BLOCK_SIZE / 2;
-
-	draw_block(x_pos, y_pos, half_size);
-}
-
-void update_game(snake_block *block, snake_block *consumable) {
 	
+	// create the consumable as a snake block
+	snake_block *consumable = malloc(sizeof(snake_block));
+	consumable->next = NULL;
+	consumable->x = x_pos;
+	consumable->y = y_pos;
+
+	return consumable;
 }
 
-inline void draw_block(int x, int y, int half_size) {
-	int rect_start  = x - half_size;
-	int rect_end    = x + half_size;
+int update_game(snake_block **head, snake_block **consumable, u8 current_direction) {
+	
+	// check for collision with head & consumable
+	if (((*head)->x == (*consumable)->x) && ((*head)->y == (*consumable)->y)) {
+		consume_point(*head, *consumable, current_direction);
+		*head = *consumable; // consumable becomes new head
 
-	int rect_top    = y + half_size; 
-	int rect_bottom = y - half_size;
+		*consumable = create_consumable(); // create new consumable
+	} else {
+		// move the snake
+		move_snake(*head, current_direction);
+	}
+
+	// check for out of bounds
+	if (((*head)->x >= OLED_WIDTH) || ((*head)->y >= OLED_LENGTH)) {
+		return 0; // snake died -> force game over
+	}
+
+	return 1; // snake is still alive
+}
+
+void move_snake(snake_block *block, u8 current_direction) {
+    if (block == NULL) return;
+
+    // save the head's old position before moving it
+    int prev_x = block->x;
+    int prev_y = block->y;
+
+    // move the head
+    switch (current_direction) {
+        case UP:    block->y += SNAKE_BLOCK_SIZE; break;
+        case DOWN:  block->y -= SNAKE_BLOCK_SIZE; break;
+        case LEFT:  block->x -= SNAKE_BLOCK_SIZE; break;
+        case RIGHT: block->x += SNAKE_BLOCK_SIZE; break;
+    }
+    
+    // ripple the old positions down the body
+    snake_block *curr = block->next;
+    while (curr != NULL) {
+        int temp_x = curr->x;
+        int temp_y = curr->y;
+        
+        curr->x = prev_x;
+        curr->y = prev_y;
+        
+        prev_x = temp_x;
+        prev_y = temp_y;
+        
+        curr = curr->next;
+    }
+}
+
+inline void consume_point(snake_block *head, snake_block *consumable, u8 current_direction) {
+	++score;
+	consumable->next = head;
+
+	consumable->x = head->x;
+	consumable->y = head->y;
+	switch (current_direction) {
+		case UP: 	consumable->y += SNAKE_BLOCK_SIZE; break;
+		case DOWN: 	consumable->y -= SNAKE_BLOCK_SIZE; break;
+		case LEFT: 	consumable->x -= SNAKE_BLOCK_SIZE; break;
+		case RIGHT: consumable->x += SNAKE_BLOCK_SIZE; break;
+	}
+}
+
+inline void draw_block(int x, int y, int sz) {
+	int rect_start  = x;
+	int rect_end    = x + sz;
+
+	int rect_top    = y; 
+	int rect_bottom = y - sz;
 
 	OLED_MoveTo(&oledDevice, rect_start, rect_top);
 	OLED_RectangleTo(&oledDevice, rect_end, rect_bottom);
+}
+
+void game_over(snake_block **head, snake_block **consumable) {
+	char temp[10];
+	OLED_ClearBuffer(&oledDevice);
+
+	// show "Game Over!" on the OLED
+	OLED_SetCursor(&oledDevice, 0, 0);
+	OLED_PutString(&oledDevice, "Game Over!");
+	// show score on the OLED
+	OLED_SetCursor(&oledDevice, 0, 2);
+	sprintf(temp, "Score: %d", score);
+	OLED_PutString(&oledDevice, temp);
+	OLED_Update(&oledDevice);
+
+	// let it fester
+	vTaskDelay(pdMS_TO_TICKS(GAME_OVER_TIME_MS));
+
+	// reset score
+	score = 0;
+
+	// free snake to avoid memory leaks
+	free_snake_block(*head);
+	free_snake_block(*consumable);
+
+	// restart the pointers
+	*head = start_game();
+    *consumable = create_consumable();
 }
