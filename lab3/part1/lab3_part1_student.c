@@ -262,7 +262,10 @@ static void vSpiMainTask(void *pvParameters) {
                         spiMasterTransfer(tx_frame, rx_frame,
                                           TRANSFER_SIZE_IN_BYTES);
 
-                        xQueueSend(spi_to_uart, rx_frame, portMAX_DELAY);
+                        for (i = 0; i < TRANSFER_SIZE_IN_BYTES; ++i) {
+                            xQueueSend(spi_to_uart, &rx_frame[i],
+                                       portMAX_DELAY);
+                        }
                         frame_index = 0;
                     }
                 }
