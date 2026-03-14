@@ -17,6 +17,7 @@ target_include_directories(xilinx_drivers INTERFACE # NOTE: Add more as needed
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/scugic/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/uartps/src
     ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/spips/src
+    ${EMBEDDEDSW_ROOT}/XilinxProcessorIPLib/drivers/spi/src
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/common
     ${EMBEDDEDSW_ROOT}/lib/bsp/standalone/src/arm/common
 )
