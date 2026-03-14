@@ -246,7 +246,13 @@ static void oledTask( void *pvParameters )
         }
 
         if (xQueueReceive(xDirectionQueue, &incoming_dir, 0) == pdPASS) {
-            current_direction = incoming_dir;
+			// ensure reversal is impossible by ignoring opposites
+			if ((incoming_dir == UP && current_direction != DOWN) 
+			|| (incoming_dir == DOWN && current_direction != UP)
+			|| (incoming_dir == LEFT && current_direction != RIGHT)
+			|| (incoming_dir == RIGHT && current_direction != LEFT)) {
+				current_direction = incoming_dir;
+			}
         }
 		if (current_button_state == PLAY) {
 			OLED_ClearBuffer(&oledDevice);
@@ -268,7 +274,7 @@ static void oledTask( void *pvParameters )
             }
 
 			if (is_alive == 0) {
-				current_button_state == GAME_OVER; // force game over
+				current_button_state = GAME_OVER; // force game over
 			}
 		} else if (current_button_state == MENU) {
 			OLED_ClearBuffer(&oledDevice);
@@ -288,6 +294,7 @@ static void oledTask( void *pvParameters )
 			OLED_Update(&oledDevice);
 		} else if (current_button_state == GAME_OVER) {
 			game_over(&head, &consumable);
+			current_button_state = MENU;
 		}
 		vTaskDelay(pdMS_TO_TICKS(FRAME_DELAY_MS));
 	}
@@ -421,8 +428,19 @@ int update_game(snake_block **head, snake_block **consumable, u8 current_directi
 	}
 
 	// check for out of bounds
+	// also handles underflows
 	if (((*head)->x >= OLED_WIDTH) || ((*head)->y >= OLED_LENGTH)) {
 		return 0; // snake died -> force game over
+	}
+	
+	
+	snake_block *tail_block = (*head)->next;
+	while (tail_block != NULL) {
+		// check for overlap between tail and head
+		if (((*head)->x == tail_block->x) && ((*head)->y == tail_block->y)) {
+			return 0;
+		}
+		tail_block = tail_block->next; // move down the chain
 	}
 
 	return 1; // snake is still alive
