@@ -33,6 +33,15 @@
 // keypad key table
 #define DEFAULT_KEYTABLE 	"0FED789C456B123A"
 
+// snake block size in pixels (4x4 square)
+#define SNAKE_BLOCK_SIZE 4
+
+// OLED screen sizes
+#define OLED_LENGTH 32
+#define OLED_WIDTH 128
+#define NUM_X_CELLS OLED_WIDTH / SNAKE_BLOCK_SIZE
+#define NUM_Y_CELLS OLED_LENGTH / SNAKE_BLOCK_SIZE
+
 // Strings
 // TODO: define numbers that will move
 const char init_message[] = "Welcome to snake game!\nUse the keypad to move (<vals to move>)\nThe SSD shows your score\n";
@@ -59,16 +68,26 @@ const u8 invert = 0x1; // true = whitebackground/black letters
                        // false = black background /white letters
 u8 keypad_val = 'x';
 
-// Game values
-u8 score = 0;
-u8 current_direction = UP;
+typedef struct snake_block {
+    struct snake_block *next; 
+    
+	u8 direction;
+    u8 x;
+    u8 y;
+} snake_block;
+
 // TODO: change these to reflect the values of desired keypad buttons
 enum directions {
-	UP = 0, 
-	DOWN = 1, 
-	LEFT = 2, 
-	RIGHT = 3
+	UP = '2', 
+	DOWN = '8', 
+	LEFT = '6', 
+	RIGHT = '4',
+	NONE = 0
 };
+
+// Game values
+u8 score = 0;
+u8 current_direction = NONE;
 
 int main()
 {
@@ -184,14 +203,37 @@ static void keypadTask( void *pvParameters ) {
 static void oledTask( void *pvParameters )
 {
 	u8 buttonVal = 0;
-	OLED_SetDrawMode(&oledDevice, 0);
-	// Turn automatic updating off
-	OLED_SetCharUpdate(&oledDevice, 0);
+	char temp[10];
 
-	while(1){
+	OLED_SetDrawMode(&oledDevice, 0); // draw mode == set mode
+	OLED_SetCharUpdate(&oledDevice, 0); // automatic updating off
+
+	snake_block *head = start_game();
+
+	while(1) {
 		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
-		
+		if (buttonVal == 0) {
+			draw_snake(head);
+			draw_consumable();
+			update_game();
+		} else if (buttonVal == 2) {
+			OLED_ClearBuffer(&oledDevice);
+
+			// show score on the OLED
+			OLED_SetCursor(&oledDevice, 0, 0);
+			sprintf(temp, "Score: %d", score);
+			OLED_PutString(&oledDevice, temp);
+
+			// show time on the OLED
+			OLED_SetCursor(&oledDevice, 0, 2);
+			u32 ticks = xTaskGetTickCount();
+			ticks = ticks / 100;
+			sprintf(temp, "Time: %lu", ticks);
+			OLED_PutString(&oledDevice, temp);
+
+			OLED_Update(&oledDevice);
 		}
+	}
 }
 
 // Shows menu options
@@ -207,6 +249,7 @@ static void buttonTask( void *pvParameters )
 	}
 }
 
+// Displays points on the SSD
 static void ssdTask(void *pvParameters) {
 	const TickType_t xDelay = 10; // switch time (can be changed later)
 	
@@ -259,4 +302,69 @@ u32 SSD_decode(u8 num, u8 cathode) {
     } else {
         return result | 0b10000000;
 	}
+}
+
+snake_block *start_game(void) {
+	score = 0;
+	snake_block *head = malloc(sizeof(snake_block));
+	head->next = NULL;
+	head->direction = NONE;
+	head->x = 0;
+	head->y = 0;
+}
+
+snake_block *create_snake_block(snake_block *next) {
+	if (next == NULL) {
+		xil_printf("nullptr error in create_snake_block\n");
+		return;
+	}
+	snake_block *new_block = malloc(sizeof(snake_block));
+	new_block->next = next;
+	new_block->direction = next->direction;
+	
+	// TODO: add offsets
+	new_block->x = 0;
+	new_block->y = 0;
+}
+
+void free_snake_block(snake_block *block) {
+	if (block->next == NULL) {
+		free(block);
+		return;
+	}
+	free_snake_block(block->next);
+}
+
+void draw_snake(snake_block *block) {
+    const int half_size = SNAKE_BLOCK_SIZE / 2;
+
+    // traverse the linked list
+    while (block != NULL) {
+		draw_block(block->x, block->y, half_size);
+        block = block->next; 
+    }
+}
+
+// TODO: maybe check the snake to avoid overlap
+void draw_consumable(snake_block *block) {
+	int x_pos = (rand() % NUM_X_CELLS) * SNAKE_BLOCK_SIZE;
+	int y_pos = (rand() % NUM_Y_CELLS) * SNAKE_BLOCK_SIZE;
+	const int half_size = SNAKE_BLOCK_SIZE / 2;
+
+	draw_block(x_pos, y_pos, half_size);
+}
+
+void update_game(snake_block *block, snake_block *consumable) {
+	
+}
+
+inline void draw_block(int x, int y, int half_size) {
+	int rect_start  = x - half_size;
+	int rect_end    = x + half_size;
+
+	int rect_top    = y + half_size; 
+	int rect_bottom = y - half_size;
+
+	OLED_MoveTo(&oledDevice, rect_start, rect_top);
+	OLED_RectangleTo(&oledDevice, rect_end, rect_bottom);
 }
