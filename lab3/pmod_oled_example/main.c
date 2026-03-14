@@ -21,9 +21,10 @@
 #include "OLEDControllerCustom.h"
 
 
-#define BTN_DEVICE_ID  XPAR_GPIO_INPUTS_BASEADDR
-#define KYPD_DEVICE_ID XPAR_GPIO_KEYPAD_BASEADDR
-#define KYPD_BASE_ADDR XPAR_GPIO_KEYPAD_BASEADDR
+#define BTN_DEVICE_ID  		XPAR_GPIO_INPUTS_BASEADDR
+#define KYPD_DEVICE_ID 		XPAR_GPIO_KEYPAD_BASEADDR
+#define KYPD_BASE_ADDR 		XPAR_GPIO_KEYPAD_BASEADDR
+#define SSD_DEVICE_ID		XPAR_GPIO_SSD_BASEADDR
 #define BTN_CHANNEL    1
 
 
@@ -32,10 +33,15 @@
 // keypad key table
 #define DEFAULT_KEYTABLE 	"0FED789C456B123A"
 
+// Strings
+// TODO: define numbers that will move
+const char init_message[] = "Welcome to snake game!\nUse the keypad to move (<vals to move>)\nThe SSD shows your score\n";
+
 // Declaring the devices
-XGpio btnInst;
-PmodOLED oledDevice;
+XGpio 		btnInst;
+PmodOLED 	oledDevice;
 PmodKYPD 	KYPDInst;
+XGpio 		SSDInst;
 
 // Function prototypes
 void InitializeKeypad();
@@ -43,13 +49,8 @@ void initializeScreen();
 static void keypadTask( void *pvParameters );
 static void oledTask( void *pvParameters );
 static void buttonTask( void *pvParameters );
-int grphClampXco(int xco);
-int grphClampYco(int yco);
-int grphAbs(int foo);
-void OLED_DrawLineTo(PmodOLED *InstancePtr, int xco, int yco);
-void OLED_getPos(PmodOLED *InstancePtr, int *pxco, int *pyco);
-void drawTarget(u8 targetX, u8 targetY, u8 width, u8 length);
-
+static void ssdTask( void *pvParameters );
+u32 SSD_decode(u8 key_value, u8 cathode);
 
 
 const u8 orientation = 0x0; // Set up for Normal PmodOLED(false) vs normal
@@ -57,36 +58,45 @@ const u8 orientation = 0x0; // Set up for Normal PmodOLED(false) vs normal
 const u8 invert = 0x1; // true = whitebackground/black letters
                        // false = black background /white letters
 u8 keypad_val = 'x';
-u8 size = 8, origin = 0;
-u8 aimx=0, aimy=0;
-u8 targetx=30, targety=5;
-u8 targetWidth=8, targetLength=15;
-int score = 0, lives = 3;
+
+// Game values
+u8 score = 0;
+u8 current_direction = UP;
+// TODO: change these to reflect the values of desired keypad buttons
+enum directions {
+	UP = 0, 
+	DOWN = 1, 
+	LEFT = 2, 
+	RIGHT = 3
+};
 
 int main()
 {
-	int status = 0;
-	// Initialize Devices
+	// ------------ Initialize Devices ------------
 	InitializeKeypad();
+	
+	// initialize ssd
+	XGpio_Initialize(&SSDInst, SSD_DEVICE_ID);
+	XGpio_SetDataDirection(&SSDInst, SSD_CHANNEL, 0x0);
 
-	 // orientation: 0 is usually normal, invert: 0 = normal colors
+	// initialize oled
+	// orientation: 0 is usually normal, invert: 0 = normal colors
     OLED_Begin(&oledDevice,
                XPAR_GPIO_OLED_BASEADDR,
                XPAR_SPI_OLED_BASEADDR,
                orientation,
                invert);
 
-	// Buttons
-	status = XGpio_Initialize(&btnInst, BTN_DEVICE_ID);
-	if(status != XST_SUCCESS){
+	// initialize buttons
+	if(XGpio_Initialize(&btnInst, BTN_DEVICE_ID) != XST_SUCCESS){
 		xil_printf("GPIO Initialization for SSD failed.\r\n");
 		return XST_FAILURE;
 	}
 
 
-	xil_printf("Initialization Complete, System Ready!\n");
+	xil_printf(init_message);
 
-
+	// ------------ Create Tasks ------------
 	xTaskCreate( keypadTask					/* The function that implements the task. */
 			   , "keypad task"				/* Text name for the task, provided to assist debugging only. */
 			   , configMINIMAL_STACK_SIZE	/* The stack allocated to the task. */
@@ -112,192 +122,141 @@ int main()
 			   , NULL
 			   );
 
+	xTaskCreate( ssdTask
+			   , "ssd task"
+			   , configMINIMAL_STACK_SIZE
+			   , NULL
+			   , tskIDLE_PRIORITY
+			   , NULL
+	);
+
 	vTaskStartScheduler();
 
+    while(1); // shouldn't get here, hang system
 
-   while(1);
-
-   return 0;
+    return 0;
 }
 
 
 void InitializeKeypad()
 {
    KYPD_begin(&KYPDInst, KYPD_BASE_ADDR);
-   KYPD_loadKeyTable(&KYPDInst, (u8*) DEFAULT_KEYTABLE);
+   KYPD_loadKeyTable(&KYPDInst, (u8 *) DEFAULT_KEYTABLE);
 }
 
+// The controls
+static void keypadTask( void *pvParameters ) {
+	u16 keystate = 0;
+	u16 last_keystate = 0; 
+	XStatus status;
+	XStatus last_status = KYPD_NO_KEY;
+	u8 new_key = 0;
+	const TickType_t xDelay = pdMS_TO_TICKS(10);
 
-static void keypadTask( void *pvParameters )
-{
-   u16 keystate;
-   u8 flag = 0;
-   XStatus status, last_status = KYPD_NO_KEY;
-   u8 new_key = 'x';
+	while (1) {
+		keystate = KYPD_getKeyStates(&KYPDInst);
+		status = KYPD_getKeyPressed(&KYPDInst, keystate, &new_key);
 
-   const TickType_t xDelay = 25 / portTICK_RATE_MS;
+		// detect if a new key is pressed (if status has changed)
+		if (status == KYPD_SINGLE_KEY && last_status == KYPD_NO_KEY) {
+			// update snake direction
+			current_direction = new_key;
+			xil_printf("Keypad button pressed: %x\r\n", new_key); // TODO: REMOVE
+		} else if (status == KYPD_MULTI_KEY && last_status == KYPD_SINGLE_KEY) {
+			// if new key and last keys pressed overlap
+			if ((keystate & last_keystate) != 0) {
+				// new keys take precedent
+                KYPD_getKeyPressed(&KYPDInst, (keystate & ~last_keystate), &new_key);
+                current_direction = new_key;
 
-   xil_printf("Pmod KYPD app started. Press any key on the Keypad.\r\n");
-   while (1) {
-	  // Capture state of the keypad
-	  keystate = KYPD_getKeyStates(&KYPDInst);
+                xil_printf("Overlapping key pressed: %x\r\n", new_key); // TODO: REMOVE
+			}
+		}
 
-	  // Determine which single key is pressed, if any
-	  // if a key is pressed, store the value of the new key in new_key
-	  status = KYPD_getKeyPressed(&KYPDInst, keystate, &new_key);
+		last_status = status;
+        last_keystate = keystate;
 
-	  // Print key detect if a new key is pressed or if status has changed
-	  if (status == KYPD_SINGLE_KEY){
-	  } else if (status == KYPD_MULTI_KEY && status != last_status){
-		 xil_printf("Error: Multiple keys pressed\r\n");
-	  } else if (status == KYPD_NO_KEY && last_status == KYPD_NO_KEY ){
-		  new_key = '0';
-	  }
-
-	  last_status = status;
-	  keypad_val = new_key;
-	  if (keypad_val == '4'){
-		  flag = !flag;
-		  if(aimy > 0 && flag) {
-			  aimy-=1;
-		  }
-		  if(origin > 0 && flag){
-			  origin--;
-		  }
-	  } else if (keypad_val == '6'){
-		  flag = !flag;
-		  if(aimy < (OledRowMax - size - 1) && flag) {
-			  aimy+=1;
-		  }
-		  if(origin < (OledRowMax - size - 1) && flag) {
-			  origin++;
-		  }
-	  } else if (keypad_val == '2'){
-		  flag = !flag;
-		  if(aimx < (OledColMax - 1) && flag) {
-			  aimx+=1;
-		  }
-	  } else if (keypad_val == '5'){
-		  flag = !flag;
-	  } else if (keypad_val == '8'){
-		  flag = !flag;
-		  if(aimx > 0 && flag) {
-			  aimx-=1;
-		  }
-	  }
-	  vTaskDelay(xDelay); // Scanning Delay
+		vTaskDelay(xDelay);
    }
 }
 
-
-void drawCrossHair(u8 xco, u8 yco)
-{
-	OLED_MoveTo(&oledDevice, xco, 0);
-	OLED_DrawLineTo(&oledDevice, xco, OledRowMax - 1);
-	OLED_MoveTo(&oledDevice, 0, yco);
-	OLED_DrawLineTo(&oledDevice, OledColMax - 1, yco);
-}
-
-
-void drawTarget(u8 targetx, u8 targety, u8 width, u8 length)
-{
-	if (targetx > OledColMax - 1){
-		targetx = 0;
-	}
-	if (targety > OledRowMax - 1){
-		targety = 0;
-	}
-	if (targetx + length > OledColMax - 1){
-		targetLength = OledColMax - 1;
-	}
-	if (targety + width > OledRowMax - 1){
-		targetWidth = OledRowMax - 1;
-	}
-	OLED_MoveTo(&oledDevice, targetx, targety);
-	OLED_RectangleTo(&oledDevice, targetx + length, targety + width);
-}
-
-
-void checkShot(void)
-{
-	if (aimx >= targetx && aimx < (targetx + targetLength) && aimy >= targety && aimy < (targety + targetWidth) ){
-		score++;
-		xil_printf("hit!, score: %d\n", score);
-		OLED_ClearBuffer(&oledDevice);
-		targetx = rand() % OledColMax;
-		targety = rand() % OledRowMax;
-		targetLength = rand() % 20;
-		targetWidth = rand() % 10;
-	} else {
-		lives--;
-		xil_printf("missed, lives: %d\n", lives);
-	}
-}
-
-
+// Actual displaying task
 static void oledTask( void *pvParameters )
 {
 	u8 buttonVal = 0;
-	char temp[10];
-	xil_printf("UART and SPI opened for PmodOLED Demo\n");
 	OLED_SetDrawMode(&oledDevice, 0);
 	// Turn automatic updating off
 	OLED_SetCharUpdate(&oledDevice, 0);
 
 	while(1){
 		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
-		if (lives == 0){
-			score = 0;
-			aimx = 0;
-			aimy = 0;
-			OLED_ClearBuffer(&oledDevice);
-			OLED_SetCursor(&oledDevice, 0, 1);
-			OLED_PutString(&oledDevice, "Game Over");
-			OLED_Update(&oledDevice);
-		} else {
-			if (buttonVal == 0){
-				drawCrossHair(aimx, aimy);
-				drawTarget(targetx, targety, targetWidth, targetLength);
-				OLED_Update(&oledDevice);
-				usleep(FRAME_DELAY);
-				OLED_ClearBuffer(&oledDevice);
-			} else if (buttonVal == 2){
-				OLED_ClearBuffer(&oledDevice);
-				OLED_SetCursor(&oledDevice, 0, 0);
-				sprintf(temp, "score: %d", score);
-				OLED_PutString(&oledDevice, temp);
-				OLED_SetCursor(&oledDevice, 0, 2);
-				sprintf(temp, "lives: %d", lives);
-				OLED_PutString(&oledDevice, temp);
-				OLED_Update(&oledDevice);
-			} else if (buttonVal == 4){
-				OLED_ClearBuffer(&oledDevice);
-				OLED_SetCursor(&oledDevice, 0, 1);
-				u32 ticks = xTaskGetTickCount();
-				ticks = ticks / 100;
-				sprintf(temp, "time: %lu", ticks);
-				OLED_PutString(&oledDevice, temp);
-				OLED_Update(&oledDevice);
-			}
+		
 		}
+}
+
+// Shows menu options
+static void buttonTask( void *pvParameters )
+{
+	const TickType_t xDelay = 10; // can be changed later
+
+	u8 buttonVal = 0;
+	while(1) {
+		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
+
+		vTaskDelay(xDelay);
 	}
 }
 
+static void ssdTask(void *pvParameters) {
+	const TickType_t xDelay = 10; // switch time (can be changed later)
+	
+	const u8 left_side = 0x1;
+	const u8 right_side = 0x0; 
 
-static void buttonTask( void *pvParameters )
-{
-	u8 buttonVal = 0;
-	while(1){
-		buttonVal = XGpio_DiscreteRead(&btnInst, BTN_CHANNEL);
-		if (buttonVal == 1 && lives > 0){
-			checkShot();
-		} else if (buttonVal == 1 && lives == 0){
-			xil_printf("game over, reset with BTN3\n");
-		} else if (buttonVal == 8){
-			xil_printf("reset\n");
-			lives = 3;
-			score = 0;
-		}
-		vTaskDelay(10);
+	u32 display_val = 0;
+	u8 ones_digit = 0;
+	u8 tens_digit = 0;
+
+	while(1) {
+		// display the ones digit of the score on the SSD
+		ones_digit = score % 10;
+		display_val = SSD_decode(ones_digit, right_side);
+		XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
+		
+		vTaskDelay(xDelay);
+
+		// display the tens digit of the score on the SSD
+		tens_digit = (score / 10) % 10;
+		display_val = SSD_decode(tens_digit, left_side);
+		XGpio_DiscreteWrite(&SSDInst, SSD_DEVICE_ID, display_val);
+
+		vTaskDelay(xDelay);
+	}
+}
+
+u32 SSD_decode(u8 num, u8 cathode) {
+    u32 result;
+	
+	// num == the value to display
+	switch(num){ // Handles the coding of the 7-seg display
+		case 0: result = 0b00111111; break; // 0
+        case 1: result = 0b00110000; break; // 1
+        case 2: result = 0b01011011; break; // 2
+        case 3: result = 0b01111001; break; // 3
+        case 4: result = 0b01110100; break; // 4
+        case 5: result = 0b01101101; break; // 5
+        case 6: result = 0b01101111; break; // 6
+        case 7: result = 0b00111000; break; // 7
+        case 8: result = 0b01111111; break; // 8
+        case 9: result = 0b01111100; break; // 9
+        default: result = 0b00000000; break; // default case - all seven segments are OFF
+    }
+
+	// cathode handles which display is active (left or right)
+	// by setting the MSB to 1 or 0
+    if(cathode == 0) {
+        return result;
+    } else {
+        return result | 0b10000000;
 	}
 }
