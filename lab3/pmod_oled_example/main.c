@@ -295,6 +295,7 @@ static void oledTask( void *pvParameters )
 		} else if (current_button_state == GAME_OVER) {
 			game_over(&head, &consumable);
 			current_button_state = MENU;
+			current_direction = NONE;
 		}
 		vTaskDelay(pdMS_TO_TICKS(FRAME_DELAY_MS));
 	}
