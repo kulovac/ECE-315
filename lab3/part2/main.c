@@ -4,12 +4,8 @@
 #include "queue.h"
 
 // Include xilinx Libraries
-#include "xparameters.h"
 #include "xgpio.h"
-#include "xscugic.h"
-#include "xil_exception.h"
 #include "xil_printf.h"
-#include "xil_cache.h"
 
 // Other miscellaneous libraries
 #include <projdefs.h>
@@ -18,7 +14,6 @@
 #include <stdio.h>
 #include <xstatus.h>
 #include "pmodkypd.h"
-#include "sleep.h"
 #include "PmodOLED.h"
 #include "OLEDControllerCustom.h"
 
@@ -31,24 +26,29 @@
 #define SSD_CHANNEL         1
 
 
-#define FRAME_DELAY_MS 200
-#define GAME_OVER_TIME_MS 2000
+#define FRAME_DELAY_MS      200
+#define GAME_OVER_TIME_MS   2000
+
+#define DIR_QUEUE_LEN       3
+#define BTN_QUEUE_LEN       1
+#define SCORE_QUEUE_LEN     2
+
 // keypad key table
 #define DEFAULT_KEYTABLE    "0FED789C456B123A"
 
 // snake block size in pixels (4x4 square)
-#define SNAKE_BLOCK_SIZE 4
+#define SNAKE_BLOCK_SIZE    4
 
 // OLED screen sizes
-#define OLED_LENGTH 32
-#define OLED_WIDTH 128
-#define NUM_X_CELLS OLED_WIDTH / SNAKE_BLOCK_SIZE
-#define NUM_Y_CELLS OLED_LENGTH / SNAKE_BLOCK_SIZE
+#define OLED_LENGTH         32
+#define OLED_WIDTH          128
+#define NUM_X_CELLS         (OLED_WIDTH / SNAKE_BLOCK_SIZE)
+#define NUM_Y_CELLS         (OLED_LENGTH / SNAKE_BLOCK_SIZE)
 
 // Strings
 const char init_message[] = 
 " ------ Welcome to snake game! ------\n"
-"Use the keypad to move (%d = UP, %d = DOWN, %d = LEFT, %d = RIGHT)\n"
+"Use the keypad to move (%c = UP, %c = DOWN, %c = LEFT, %c = RIGHT)\n"
 "Use the pushbuttons for stats/reset (BTN1 = MENU, BTN2 = GAME OVER)\n"
 "The SSD shows your score\n";
 
@@ -72,15 +72,15 @@ static void keypadTask( void *pvParameters );
 static void oledTask( void *pvParameters );
 static void buttonTask( void *pvParameters );
 static void ssdTask( void *pvParameters );
-u32 SSD_decode(u8 key_value, u8 cathode);
-snake_block *start_game(void);
-snake_block *create_consumable(void);
-void draw_snake(snake_block *block);
-void draw_block(int x, int y);
-void move_snake(snake_block *block, u8 current_direction);
-void consume_point(snake_block *head, snake_block *consumable, u8 current_direction);
-int update_game(snake_block **head, snake_block **consumable, u8 current_direction);
-void game_over(snake_block **head, snake_block **consumable);
+static u32 SSD_decode(u8 key_value, u8 cathode);
+static snake_block *start_game(void);
+static snake_block *create_consumable(void);
+static void draw_snake(snake_block *block);
+static void draw_block(int x, int y);
+static void move_snake(snake_block *block, u8 current_direction);
+static void consume_point(snake_block *head, snake_block *consumable, u8 current_direction);
+static int update_game(snake_block **head, snake_block **consumable, u8 current_direction);
+static void game_over(snake_block **head, snake_block **consumable);
 
 
 const u8 orientation = 0x1; // Set up for Normal PmodOLED(false) vs normal
@@ -92,8 +92,8 @@ u8 keypad_val = 'x';
 enum directions {
     UP = '2', 
     DOWN = '5', 
-    LEFT = '6', 
-    RIGHT = '4',
+    LEFT = '4', 
+    RIGHT = '6',
     NONE = 0
 };
 
@@ -141,9 +141,9 @@ int main() {
     xil_printf(init_message, UP, DOWN, LEFT, RIGHT);
 
     // ------------ Create Queues ------------
-    xDirectionQueue = xQueueCreate(2, sizeof(u8));
-    xButtonQueue    = xQueueCreate(5, sizeof(u8));
-    xScoreQueue     = xQueueCreate(2, sizeof(u8));
+    xDirectionQueue = xQueueCreate(DIR_QUEUE_LEN, sizeof(u8));
+    xButtonQueue    = xQueueCreate(BTN_QUEUE_LEN, sizeof(u8));
+    xScoreQueue     = xQueueCreate(SCORE_QUEUE_LEN, sizeof(u8));
 
     // ------------ Create Tasks ------------
     xTaskCreate( keypadTask                 /* The function that implements the task. */
@@ -195,6 +195,8 @@ void InitializeKeypad()
 
 // The controls
 static void keypadTask(void *pvParameters) {
+    (void) pvParameters;
+
     u16 keystate = 0;
     u16 last_keystate = 0; 
     XStatus status;
@@ -227,8 +229,9 @@ static void keypadTask(void *pvParameters) {
 }
 
 // Actual displaying task
-static void oledTask(void *pvParameters)
-{
+static void oledTask(void *pvParameters) {
+    (void) pvParameters;
+
     u8 current_button_state = 0; // local state for the menu
     u8 current_direction = NONE;
     u8 previous_score = 0;
@@ -292,7 +295,7 @@ static void oledTask(void *pvParameters)
             OLED_SetCursor(&oledDevice, 0, 2);
             u32 ticks = xTaskGetTickCount();
             ticks = ticks / 100;
-            sprintf(temp, "Time: %lu", ticks);
+            sprintf(temp, "Time: %u", ticks);
             OLED_PutString(&oledDevice, temp);
 
             OLED_Update(&oledDevice);
@@ -306,8 +309,9 @@ static void oledTask(void *pvParameters)
 }
 
 // Shows menu options
-static void buttonTask(void *pvParameters)
-{
+static void buttonTask(void *pvParameters) {
+    (void) pvParameters;
+
     const TickType_t xDelay = pdMS_TO_TICKS(100); // debounce delay
     u8 buttonVal = 0;
     u8 lastButtonVal = 0;
@@ -327,6 +331,8 @@ static void buttonTask(void *pvParameters)
 
 // Displays points on the SSD
 static void ssdTask(void *pvParameters) {
+    (void) pvParameters;
+
     const TickType_t xDelay = pdMS_TO_TICKS(12);
     const u8 left_side = 0x0;
     const u8 right_side = 0x1; 
@@ -350,7 +356,7 @@ static void ssdTask(void *pvParameters) {
     }
 }
 
-u32 SSD_decode(u8 num, u8 cathode) {
+static u32 SSD_decode(u8 num, u8 cathode) {
     u32 result;
     
     // num == the value to display
@@ -377,7 +383,7 @@ u32 SSD_decode(u8 num, u8 cathode) {
     }
 }
 
-snake_block *start_game(void) {
+static snake_block *start_game(void) {
     score = 0;
     snake_block *head = malloc(sizeof(snake_block));
     head->next = NULL;
@@ -387,7 +393,7 @@ snake_block *start_game(void) {
     return head;
 }
 
-void free_snake_block(snake_block *block) {
+static void free_snake_block(snake_block *block) {
     if (block == NULL) {
         return;
     }
@@ -395,7 +401,7 @@ void free_snake_block(snake_block *block) {
     free(block); // free the block on the way back out
 }
 
-void draw_snake(snake_block *block) {
+static void draw_snake(snake_block *block) {
     // traverse the linked list
     while (block != NULL) {
         draw_block(block->x, block->y);
@@ -404,7 +410,7 @@ void draw_snake(snake_block *block) {
 }
 
 // TODO: maybe check the snake to avoid overlap
-snake_block *create_consumable(void) {
+static snake_block *create_consumable(void) {
     int x_pos = (rand() % NUM_X_CELLS) * SNAKE_BLOCK_SIZE;
     int y_pos = (rand() % NUM_Y_CELLS) * SNAKE_BLOCK_SIZE;
     
@@ -417,7 +423,7 @@ snake_block *create_consumable(void) {
     return consumable;
 }
 
-int update_game(snake_block **head, snake_block **consumable, u8 current_direction) {
+static int update_game(snake_block **head, snake_block **consumable, u8 current_direction) {
     
     // check for collision with head & consumable
     if (((*head)->x == (*consumable)->x) && ((*head)->y == (*consumable)->y)) {
@@ -436,7 +442,6 @@ int update_game(snake_block **head, snake_block **consumable, u8 current_directi
         return 0; // snake died -> force game over
     }
     
-    
     snake_block *tail_block = (*head)->next;
     while (tail_block != NULL) {
         // check for overlap between tail and head
@@ -449,7 +454,16 @@ int update_game(snake_block **head, snake_block **consumable, u8 current_directi
     return 1; // snake is still alive
 }
 
-void move_snake(snake_block *block, u8 current_direction) {
+static inline void move_block(snake_block *block, u8 current_direction) {
+    switch (current_direction) {
+        case UP:    block->y -= SNAKE_BLOCK_SIZE; break;
+        case DOWN:  block->y += SNAKE_BLOCK_SIZE; break;
+        case LEFT:  block->x -= SNAKE_BLOCK_SIZE; break;
+        case RIGHT: block->x += SNAKE_BLOCK_SIZE; break;
+    }
+}
+
+static void move_snake(snake_block *block, u8 current_direction) {
     if (block == NULL) return;
 
     // save the head's old position before moving it
@@ -457,12 +471,7 @@ void move_snake(snake_block *block, u8 current_direction) {
     int prev_y = block->y;
 
     // move the head
-    switch (current_direction) {
-        case UP:    block->y -= SNAKE_BLOCK_SIZE; break;
-        case DOWN:  block->y += SNAKE_BLOCK_SIZE; break;
-        case LEFT:  block->x += SNAKE_BLOCK_SIZE; break;
-        case RIGHT: block->x -= SNAKE_BLOCK_SIZE; break;
-    }
+    move_block(block, current_direction);
     
     // ripple the old positions down the body
     snake_block *curr = block->next;
@@ -480,21 +489,16 @@ void move_snake(snake_block *block, u8 current_direction) {
     }
 }
 
-inline void consume_point(snake_block *head, snake_block *consumable, u8 current_direction) {
+static inline void consume_point(snake_block *head, snake_block *consumable, u8 current_direction) {
     ++score;
     consumable->next = head;
 
     consumable->x = head->x;
     consumable->y = head->y;
-    switch (current_direction) {
-        case UP:    consumable->y -= SNAKE_BLOCK_SIZE; break;
-        case DOWN:  consumable->y += SNAKE_BLOCK_SIZE; break;
-        case LEFT:  consumable->x += SNAKE_BLOCK_SIZE; break;
-        case RIGHT: consumable->x -= SNAKE_BLOCK_SIZE; break;
-    }
+    move_block(consumable, current_direction);
 }
 
-inline void draw_block(int x, int y) {
+static inline void draw_block(int x, int y) {
     int rect_start  = x;
     int rect_end    = x + SNAKE_BLOCK_SIZE;
 
@@ -505,7 +509,7 @@ inline void draw_block(int x, int y) {
     OLED_RectangleTo(&oledDevice, rect_end, rect_bottom);
 }
 
-void game_over(snake_block **head, snake_block **consumable) {
+static void game_over(snake_block **head, snake_block **consumable) {
     char temp[10];
     OLED_ClearBuffer(&oledDevice);
 
