@@ -29,7 +29,7 @@
 #define FRAME_DELAY_MS      200
 #define GAME_OVER_TIME_MS   2000
 
-#define DIR_QUEUE_LEN       3
+#define DIR_QUEUE_LEN       4
 #define BTN_QUEUE_LEN       1
 #define SCORE_QUEUE_LEN     2
 
@@ -46,11 +46,14 @@
 #define NUM_Y_CELLS         (OLED_LENGTH / SNAKE_BLOCK_SIZE)
 
 // Strings
-const char init_message[] = 
+const char INIT_MESSAGE[] = 
 " ------ Welcome to snake game! ------\n"
 "Use the keypad to move (%c = UP, %c = DOWN, %c = LEFT, %c = RIGHT)\n"
 "Use the pushbuttons for stats/reset (BTN1 = MENU, BTN2 = GAME OVER)\n"
 "The SSD shows your score\n";
+const char GAME_OVER_MESSAGE[] = "Game Over!";
+const char SCORE_MESSAGE[] = "Score: %d";
+const char TIME_MESSAGE[] = "Time: %u";
 
 // Declaring the devices
 XGpio       btnInst;
@@ -138,7 +141,7 @@ int main() {
     }
     XGpio_SetDataDirection(&btnInst, BTN_CHANNEL, 0x1);
 
-    xil_printf(init_message, UP, DOWN, LEFT, RIGHT);
+    xil_printf(INIT_MESSAGE, UP, DOWN, LEFT, RIGHT);
 
     // ------------ Create Queues ------------
     xDirectionQueue = xQueueCreate(DIR_QUEUE_LEN, sizeof(u8));
@@ -288,19 +291,20 @@ static void oledTask(void *pvParameters) {
 
             // show score on the OLED
             OLED_SetCursor(&oledDevice, 0, 0);
-            sprintf(temp, "Score: %d", score);
+            sprintf(temp, SCORE_MESSAGE, score);
             OLED_PutString(&oledDevice, temp);
 
             // show time on the OLED
             OLED_SetCursor(&oledDevice, 0, 2);
             u32 ticks = xTaskGetTickCount();
             ticks = ticks / 100;
-            sprintf(temp, "Time: %u", ticks);
+            sprintf(temp, TIME_MESSAGE, ticks);
             OLED_PutString(&oledDevice, temp);
 
             OLED_Update(&oledDevice);
         } else if (current_button_state == GAME_OVER) {
             game_over(&head, &consumable);
+            xQueueReset(xDirectionQueue);
             current_direction = NONE;
             current_button_state = PLAY;
         }
@@ -312,7 +316,7 @@ static void oledTask(void *pvParameters) {
 static void buttonTask(void *pvParameters) {
     (void) pvParameters;
 
-    const TickType_t xDelay = pdMS_TO_TICKS(100); // debounce delay
+    const TickType_t xDelay = pdMS_TO_TICKS(10); // debounce delay
     u8 buttonVal = 0;
     u8 lastButtonVal = 0;
 
@@ -333,7 +337,7 @@ static void buttonTask(void *pvParameters) {
 static void ssdTask(void *pvParameters) {
     (void) pvParameters;
 
-    const TickType_t xDelay = pdMS_TO_TICKS(12);
+    const TickType_t xDelay = pdMS_TO_TICKS(12); // switching delay
     const u8 left_side = 0x0;
     const u8 right_side = 0x1; 
 
@@ -503,22 +507,22 @@ static inline void draw_block(int x, int y) {
     int rect_end    = x + SNAKE_BLOCK_SIZE;
 
     int rect_top    = y; 
-    int rect_bottom = y - SNAKE_BLOCK_SIZE;
+    int rect_bottom = y + SNAKE_BLOCK_SIZE;
 
     OLED_MoveTo(&oledDevice, rect_start, rect_top);
     OLED_RectangleTo(&oledDevice, rect_end, rect_bottom);
 }
 
 static void game_over(snake_block **head, snake_block **consumable) {
-    char temp[10];
+    char temp[16];
     OLED_ClearBuffer(&oledDevice);
 
     // show "Game Over!" on the OLED
     OLED_SetCursor(&oledDevice, 0, 0);
-    OLED_PutString(&oledDevice, "Game Over!");
+    OLED_PutString(&oledDevice, (char *) GAME_OVER_MESSAGE);
     // show score on the OLED
     OLED_SetCursor(&oledDevice, 0, 2);
-    sprintf(temp, "Score: %d", score);
+    sprintf(temp, SCORE_MESSAGE, score);
     OLED_PutString(&oledDevice, temp);
     OLED_Update(&oledDevice);
 
