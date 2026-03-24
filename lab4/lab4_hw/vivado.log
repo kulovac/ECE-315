@@ -1,0 +1,388 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Wed Mar 18 10:45:40 2026
+# Process ID         : 6668
+# Current directory  : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform
+# Command line       : vivado.exe -gui_launcher_event rodinguilauncherevent18524 C:\Users\Engg-User\Desktop\ece315_2026\lab4\lab_4_hw_platform\lab_4_hw.xpr
+# Log file           : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/vivado.log
+# Journal file       : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform\vivado.jou
+# Running On         : LT-735460
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz
+# CPU Frequency      : 2496 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 34070 MB
+# Swap memory        : 2147 MB
+# Total Virtual      : 36217 MB
+# Available Virtual  : 24657 MB
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.xpr
+INFO: [Project 1-313] Project file moved from 'C:/Users/ecetech/Desktop/lab_4_hw.xpr/lab_4_hw/.Xil/Vivado-17244-TECH-C98I8JRGUQ/PrjAr/_X_' since last save.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2024.2/data/ip'.
+WARNING: [BD 41-1661] One or more IPs have been locked in the design 'design_1.bd'. Please run report_ip_status for more details and recommendations on how to fix this issue.
+List of locked IPs:
+design_1_axi_gpio_0_2
+design_1_axi_gpio_0_3
+design_1_ps7_0_axi_periph_0
+design_1_xbar_0
+design_1_rst_ps7_0_50M_0
+design_1_axi_gpio_0_4
+design_1_auto_pc_0
+
+upgrade_project -migrate_output_products
+WARNING: [IP_Flow 19-2162] IP 'design_1_axi_gpio_0_2' is locked:
+* IP definition 'AXI GPIO (2.0)' for IP 'design_1_axi_gpio_0_2' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_axi_gpio_0_2.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_2'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_axi_gpio_0_2'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_axi_gpio_0_3' is locked:
+* IP definition 'AXI GPIO (2.0)' for IP 'design_1_axi_gpio_0_3' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_axi_gpio_0_3.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_3'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_axi_gpio_0_3'.
+INFO: [BD 41-2710] Migrated 'design_1_processing_system7_0_0.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_processing_system7_0_0'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_processing_system7_0_0'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_xbar_0' is locked:
+* IP definition 'AXI Crossbar (2.1)' for IP 'design_1_xbar_0' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_xbar_0.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_xbar_0'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_xbar_0'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_ps7_0_axi_periph_0' is locked:
+* IP definition 'AXI Interconnect (2.1)' for IP 'design_1_ps7_0_axi_periph_0' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_ps7_0_axi_periph_0.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_ps7_0_axi_periph_0'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_ps7_0_axi_periph_0'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_rst_ps7_0_50M_0' is locked:
+* IP definition 'Processor System Reset (5.0)' for IP 'design_1_rst_ps7_0_50M_0' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_rst_ps7_0_50M_0.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_rst_ps7_0_50M_0'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_rst_ps7_0_50M_0'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_axi_gpio_0_4' is locked:
+* IP definition 'AXI GPIO (2.0)' for IP 'design_1_axi_gpio_0_4' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_axi_gpio_0_4.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_4'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_axi_gpio_0_4'.
+WARNING: [IP_Flow 19-2162] IP 'design_1_auto_pc_0' is locked:
+* IP definition 'AXI Protocol Converter (2.1)' for IP 'design_1_auto_pc_0' (customized with software release 2019.1) has a different revision in the IP Catalog.
+INFO: [BD 41-2710] Migrated 'design_1_auto_pc_0.xci'
+  Source files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ip/design_1_auto_pc_0'
+  Output files are located in 'c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.gen/sources_1/bd/design_1/ip/design_1_auto_pc_0'.
+open_bd_design {c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/design_1.bd}
+Reading block design file <c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/design_1.bd>...
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - axi_gpio_leds
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - axi_gpio_inputs
+Adding component instance block -- xilinx.com:ip:processing_system7:5.5 - processing_system7_0
+Adding component instance block -- xilinx.com:ip:axi_interconnect:2.1 - ps7_0_axi_periph
+Adding component instance block -- xilinx.com:ip:axi_crossbar:2.1 - xbar
+Adding component instance block -- xilinx.com:ip:axi_protocol_converter:2.1 - auto_pc
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps7_0_50M
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - stepper_motor
+Successfully read diagram <design_1> from block design file <c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/design_1.bd>
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+close_bd_design [get_bd_designs design_1]
+Wrote  : <c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/ui/bd_1f5defd0.ui> 
+close_project
+open_project C:/Users/Engg-User/Desktop/temp/hw/lab3_full/lab3_full.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2024.2/data/ip'.
+INFO: [Project 1-5579] Found utility IPs instantiated in one or more block designs which have equivalent inline hdl with improved performance and reduced diskspace. It is recommended to migrate these utility IPs to inline hdl using the command upgrade_project -migrate_to_inline_hdl. The utility IPs may be deprecated in future releases. More information on inline hdl is available in UG994.
+close_project
+INFO: [filemgmt 56-326] User Interrupt. Could not getCurrentGraph()
+open_project C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2024.2/data/ip'.
+WARNING: [BD 41-1661] One or more IPs have been locked in the design 'design_1.bd'. Please run report_ip_status for more details and recommendations on how to fix this issue.
+List of locked IPs:
+design_1_axi_gpio_0_2
+design_1_axi_gpio_0_3
+design_1_ps7_0_axi_periph_0
+design_1_xbar_0
+design_1_auto_pc_0
+design_1_rst_ps7_0_50M_0
+design_1_axi_gpio_0_4
+
+update_compile_order -fileset sources_1
+close_project
+open_project C:/Users/Engg-User/Desktop/temp/hw/lab3_full/lab3_full.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2024.2/data/ip'.
+INFO: [Project 1-5579] Found utility IPs instantiated in one or more block designs which have equivalent inline hdl with improved performance and reduced diskspace. It is recommended to migrate these utility IPs to inline hdl using the command upgrade_project -migrate_to_inline_hdl. The utility IPs may be deprecated in future releases. More information on inline hdl is available in UG994.
+update_compile_order -fileset sources_1
+save_project_as lab4_hw C:/Users/Engg-User/Desktop/temp/lab4_hw -force
+save_project_as: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2382.148 ; gain = 0.000
+open_bd_design {C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd}
+Reading block design file <C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd>...
+Adding component instance block -- xilinx.com:ip:processing_system7:5.5 - processing_system7_0
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - gpio_oled
+Adding component instance block -- xilinx.com:ip:smartconnect:1.0 - axi_smc
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps7_0_50M
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_0
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_1
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_2
+Adding component instance block -- xilinx.com:ip:xlslice:1.0 - xlslice_3
+Adding component instance block -- xilinx.com:ip:axi_quad_spi:3.2 - spi_oled
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - gpio_inputs
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - gpio_keypad
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - gpio_ssd
+Adding component instance block -- xilinx.com:ip:axi_gpio:2.0 - gpio_leds
+Successfully read diagram <lab3_hw> from block design file <C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd>
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0
+endgroup
+set_property location {4 1085 1491} [get_bd_cells axi_gpio_0]
+set_property name stepper_motor [get_bd_cells axi_gpio_0]
+set_property -dict [list \
+  CONFIG.C_ALL_OUTPUTS {1} \
+  CONFIG.C_GPIO_WIDTH {4} \
+  CONFIG.C_INTERRUPT_PRESENT {1} \
+] [get_bd_cells stepper_motor]
+startgroup
+make_bd_pins_external  [get_bd_pins stepper_motor/gpio_io_o]
+WARNING: [BD 41-1306] The connection to interface pin </stepper_motor/gpio_io_o> is being overridden by the user with net <stepper_motor_gpio_io_o>. This pin will not be connected as a part of interface connection <GPIO>, and might not recreate the connectivity as expected using the writ_bd_tcl command.
+endgroup
+set_property name motor_pin [get_bd_ports gpio_io_o_0]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (50 MHz)} Clk_slave {Auto} Clk_xbar {/processing_system7_0/FCLK_CLK0 (50 MHz)} Master {/processing_system7_0/M_AXI_GP0} Slave {/stepper_motor/S_AXI} ddr_seg {Auto} intc_ip {/axi_smc} master_apm {0}}  [get_bd_intf_pins stepper_motor/S_AXI]
+Slave segment '/stepper_motor/S_AXI/Reg' is being assigned into address space '/processing_system7_0/Data' at <0x4125_0000 [ 64K ]>.
+validate_bd_design
+WARNING: [BD 41-702] Propagation TCL tries to overwrite USER strength parameter Async_Clk(1) on '/spi_oled' with propagated value(0). Command ignored
+WARNING: [#UNDEF] When using EMIO pins for SPI_0 tie SSIN High in the PL bitstream
+WARNING: [#UNDEF] When using EMIO pins for SPI_1 tie SSIN High in the PL bitstream
+INFO: [BD 5-943] Reserving offset range <0x4120_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x41E0_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M01_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4121_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M02_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4122_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M03_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4123_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M04_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4124_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M05_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4125_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M06_AXI'. This will be used by smartconnect on path for routing.
+INFO: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: SmartConnect lab3_hw_axi_smc_2 is in Low-Area Mode.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: IP lab3_hw_axi_smc_2 is configured in Low-area mode as all propagated traffic is low-bandwidth (AXI4LITE). SI S00_AXI has property HAS_BURST == 1. WRAP bursts are not supported in Low-area mode and will result in DECERR if received.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: If WRAP transactions are required then turn off Low-area mode using ADVANCED_PROPERTIES. Execute following: set_property CONFIG.ADVANCED_PROPERTIES {__experimental_features__ {disable_low_area_mode 1}} [get_bd_cells /lab3_hw_axi_smc_2]
+INFO: [Ipptcl 7-1463] No Compatible Board Interface found. Board Tab not created in customize GUI
+INFO: [xilinx.com:ip:axi_quad_spi:3.2-1] /spi_oled 
+                   #######################################################################################
+                   INFO: AXI Quad SPI core's AXI Lite Clock and EXT SPI CLK are synchronous to each other.
+                   ########################################################################################
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO has associated board param GPIO_BOARD_INTERFACE, which is set to board part interface btns_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO2 has associated board param GPIO2_BOARD_INTERFACE, which is set to board part interface sws_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+validate_bd_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2382.148 ; gain = 0.000
+delete_bd_objs [get_bd_intf_nets axi_smc_M05_AXI] [get_bd_nets gpio_ssd_gpio_io_o] [get_bd_cells gpio_ssd]
+delete_bd_objs [get_bd_ports digit]
+validate_bd_design
+WARNING: [BD 41-2670] Found an incomplete address path from address space '/processing_system7_0/Data' to master interface '/axi_smc/M05_AXI'. Please either complete or remove this path to resolve.
+WARNING: [BD 41-702] Propagation TCL tries to overwrite USER strength parameter Async_Clk(1) on '/spi_oled' with propagated value(0). Command ignored
+WARNING: [#UNDEF] When using EMIO pins for SPI_0 tie SSIN High in the PL bitstream
+WARNING: [#UNDEF] When using EMIO pins for SPI_1 tie SSIN High in the PL bitstream
+INFO: [BD 5-943] Reserving offset range <0x4120_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x41E0_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M01_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4121_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M02_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4122_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M03_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4123_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M04_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x4125_0000 [ 64K ]> from slave interface '/axi_smc/S00_AXI' to master interface '/axi_smc/M06_AXI'. This will be used by smartconnect on path for routing.
+INFO: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: SmartConnect lab3_hw_axi_smc_2 is in Low-Area Mode.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: IP lab3_hw_axi_smc_2 is configured in Low-area mode as all propagated traffic is low-bandwidth (AXI4LITE). SI S00_AXI has property HAS_BURST == 1. WRAP bursts are not supported in Low-area mode and will result in DECERR if received.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lab3_hw_axi_smc_2: If WRAP transactions are required then turn off Low-area mode using ADVANCED_PROPERTIES. Execute following: set_property CONFIG.ADVANCED_PROPERTIES {__experimental_features__ {disable_low_area_mode 1}} [get_bd_cells /lab3_hw_axi_smc_2]
+INFO: [Ipptcl 7-1463] No Compatible Board Interface found. Board Tab not created in customize GUI
+INFO: [xilinx.com:ip:axi_quad_spi:3.2-1] /spi_oled 
+                   #######################################################################################
+                   INFO: AXI Quad SPI core's AXI Lite Clock and EXT SPI CLK are synchronous to each other.
+                   ########################################################################################
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO has associated board param GPIO_BOARD_INTERFACE, which is set to board part interface btns_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO2 has associated board param GPIO2_BOARD_INTERFACE, which is set to board part interface sws_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+validate_bd_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2382.148 ; gain = 0.000
+regenerate_bd_layout -routing
+make_wrapper -files [get_files C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd] -top
+INFO: [BD 41-1662] The design 'lab3_hw.bd' is already validated. Therefore parameter propagation will not be re-run.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO has associated board param GPIO_BOARD_INTERFACE, which is set to board part interface btns_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO2 has associated board param GPIO2_BOARD_INTERFACE, which is set to board part interface sws_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+Wrote  : <C:\Users\Engg-User\Desktop\temp\lab4_hw\lab4_hw.srcs\sources_1\bd\lab3_hw\lab3_hw.bd> 
+Wrote  : <C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/ui/bd_961b7e68.ui> 
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/synth/lab3_hw.vhd
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/sim/lab3_hw.vhd
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/hdl/lab3_hw_wrapper.vhd
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/utils_1/imports/synth_1/lab3_hw_wrapper.dcp with file C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.runs/synth_1/lab3_hw_wrapper.dcp
+reset_run lab3_hw_axi_smc_2_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 16
+INFO: [BD 41-1662] The design 'lab3_hw.bd' is already validated. Therefore parameter propagation will not be re-run.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO has associated board param GPIO_BOARD_INTERFACE, which is set to board part interface btns_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+CRITICAL WARNING: [BD 41-1358] IP interface /gpio_inputs/GPIO2 has associated board param GPIO2_BOARD_INTERFACE, which is set to board part interface sws_4bits, but IP interface is not connected to any external port. To apply board automation generated constraints, please make it external.
+Wrote  : <C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/ui/bd_961b7e68.ui> 
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/synth/lab3_hw.vhd
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/sim/lab3_hw.vhd
+VHDL Output written to : c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/hdl/lab3_hw_wrapper.vhd
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_nodes/s00_ar_node/s_sc_payld'(150) to pin: '/s00_nodes/S_SC_AR_payld'(146) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_nodes/s00_aw_node/s_sc_payld'(150) to pin: '/s00_nodes/S_SC_AW_payld'(146) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_nodes/m00_r_node/s_sc_payld'(55) to pin: '/m00_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_nodes/m00_b_node/s_sc_payld'(9) to pin: '/m00_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_nodes/m01_r_node/s_sc_payld'(55) to pin: '/m01_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_nodes/m01_b_node/s_sc_payld'(9) to pin: '/m01_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_nodes/m02_r_node/s_sc_payld'(55) to pin: '/m02_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_nodes/m02_b_node/s_sc_payld'(9) to pin: '/m02_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_nodes/m03_r_node/s_sc_payld'(55) to pin: '/m03_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_nodes/m03_b_node/s_sc_payld'(9) to pin: '/m03_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_nodes/m04_r_node/s_sc_payld'(55) to pin: '/m04_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_nodes/m04_b_node/s_sc_payld'(9) to pin: '/m04_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_nodes/m06_r_node/s_sc_payld'(55) to pin: '/m06_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_nodes/m06_b_node/s_sc_payld'(9) to pin: '/m06_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_axi2sc/s_sc_r_payld'(53) to pin: '/s00_nodes/M_SC_R_payld'(55) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_axi2sc/s_sc_b_payld'(7) to pin: '/s00_nodes/M_SC_B_payld'(9) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_sc2axi/s_sc_ar_payld'(146) to pin: '/m00_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_sc2axi/s_sc_aw_payld'(146) to pin: '/m00_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_sc2axi/s_sc_ar_payld'(146) to pin: '/m01_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_sc2axi/s_sc_aw_payld'(146) to pin: '/m01_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_sc2axi/s_sc_ar_payld'(146) to pin: '/m02_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_sc2axi/s_sc_aw_payld'(146) to pin: '/m02_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_sc2axi/s_sc_ar_payld'(146) to pin: '/m03_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_sc2axi/s_sc_aw_payld'(146) to pin: '/m03_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_sc2axi/s_sc_ar_payld'(146) to pin: '/m04_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_sc2axi/s_sc_aw_payld'(146) to pin: '/m04_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_sc2axi/s_sc_ar_payld'(146) to pin: '/m06_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_sc2axi/s_sc_aw_payld'(146) to pin: '/m06_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_nodes/s00_ar_node/s_sc_payld'(150) to pin: '/s00_nodes/S_SC_AR_payld'(146) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_nodes/s00_aw_node/s_sc_payld'(150) to pin: '/s00_nodes/S_SC_AW_payld'(146) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_nodes/m00_r_node/s_sc_payld'(55) to pin: '/m00_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_nodes/m00_b_node/s_sc_payld'(9) to pin: '/m00_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_nodes/m01_r_node/s_sc_payld'(55) to pin: '/m01_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_nodes/m01_b_node/s_sc_payld'(9) to pin: '/m01_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_nodes/m02_r_node/s_sc_payld'(55) to pin: '/m02_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_nodes/m02_b_node/s_sc_payld'(9) to pin: '/m02_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_nodes/m03_r_node/s_sc_payld'(55) to pin: '/m03_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_nodes/m03_b_node/s_sc_payld'(9) to pin: '/m03_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_nodes/m04_r_node/s_sc_payld'(55) to pin: '/m04_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_nodes/m04_b_node/s_sc_payld'(9) to pin: '/m04_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_nodes/m06_r_node/s_sc_payld'(55) to pin: '/m06_nodes/S_SC_R_payld'(53) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_nodes/m06_b_node/s_sc_payld'(9) to pin: '/m06_nodes/S_SC_B_payld'(7) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_axi2sc/s_sc_r_payld'(53) to pin: '/s00_nodes/M_SC_R_payld'(55) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/s00_axi2sc/s_sc_b_payld'(7) to pin: '/s00_nodes/M_SC_B_payld'(9) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_sc2axi/s_sc_ar_payld'(146) to pin: '/m00_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m00_sc2axi/s_sc_aw_payld'(146) to pin: '/m00_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_sc2axi/s_sc_ar_payld'(146) to pin: '/m01_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m01_sc2axi/s_sc_aw_payld'(146) to pin: '/m01_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_sc2axi/s_sc_ar_payld'(146) to pin: '/m02_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m02_sc2axi/s_sc_aw_payld'(146) to pin: '/m02_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_sc2axi/s_sc_ar_payld'(146) to pin: '/m03_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m03_sc2axi/s_sc_aw_payld'(146) to pin: '/m03_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_sc2axi/s_sc_ar_payld'(146) to pin: '/m04_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m04_sc2axi/s_sc_aw_payld'(146) to pin: '/m04_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_sc2axi/s_sc_ar_payld'(146) to pin: '/m06_nodes/M_SC_AR_payld'(150) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/m06_sc2axi/s_sc_aw_payld'(146) to pin: '/m06_nodes/M_SC_AW_payld'(150) - Only lower order bits will be connected.
+Exporting to file c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/ip/lab3_hw_axi_smc_2/bd_0/hw_handoff/lab3_hw_axi_smc_2.hwh
+Generated Hardware Definition File c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/ip/lab3_hw_axi_smc_2/bd_0/synth/lab3_hw_axi_smc_2.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_smc .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block stepper_motor .
+Exporting to file c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/hw_handoff/lab3_hw.hwh
+Generated Hardware Definition File c:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.gen/sources_1/bd/lab3_hw/synth/lab3_hw.hwdef
+INFO: [IP_Flow 19-6930] IPCACHE: runCacheChecks() number of threads = 8
+INFO: [IP_Flow 19-6921] IPCACHE: Adding cache check func to thread queue for IP lab3_hw_axi_gpio_0_1
+INFO: [IP_Flow 19-6921] IPCACHE: Adding cache check func to thread queue for IP lab3_hw_axi_smc_2
+INFO: [IP_Flow 19-8020] IPCACHE: runCacheChecks() calling threadPool finishWork()
+INFO: [IP_Flow 19-6924] IPCACHE: Running cache check for IP inst: lab3_hw_axi_gpio_0_1
+INFO: [IP_Flow 19-6924] IPCACHE: Running cache check for IP inst: lab3_hw_axi_smc_2
+[Wed Mar 18 10:54:04 2026] Launched lab3_hw_axi_smc_2_synth_1, lab3_hw_axi_gpio_0_1_synth_1, synth_1...
+Run output will be captured here:
+lab3_hw_axi_smc_2_synth_1: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.runs/lab3_hw_axi_smc_2_synth_1/runme.log
+lab3_hw_axi_gpio_0_1_synth_1: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.runs/lab3_hw_axi_gpio_0_1_synth_1/runme.log
+synth_1: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.runs/synth_1/runme.log
+[Wed Mar 18 10:54:04 2026] Launched impl_1...
+Run output will be captured here: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.runs/impl_1/runme.log
+launch_runs: Time (s): cpu = 00:00:10 ; elapsed = 00:00:17 . Memory (MB): peak = 2382.148 ; gain = 0.000
+write_hw_platform -fixed -include_bit -force -file C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw_wrapper.xsa
+INFO: [Project 1-1918] Creating Hardware Platform: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw_wrapper.xsa ...
+WARNING: [Project 1-645] Board images not set in Hardware Platform.
+INFO: [Project 1-1943] The Hardware Platform can be used for Hardware
+INFO: [Project 1-1941] Successfully created Hardware Platform: C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw_wrapper.xsa
+INFO: [Hsi 55-2053] elapsed time for repository (C:/Xilinx/Vivado/2024.2/data/embeddedsw) loading 0 seconds
+INFO: [Vivado 12-8231] Launching Vitis
+INFO: [Vivado 12-417] Running vitis
+INFO: [Vivado 12-8232] Vitis launch initiated. Please check console for any further messages.
+archive_project C:/Users/Engg-User/Desktop/temp/lab4_hw.xpr.zip -temp_dir C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460 -force -exclude_run_results -include_local_ip_cache
+INFO: [Coretcl 2-137] starting archive...
+INFO: [Coretcl 2-1499] Saving project copy to temporary location 'C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460' for archiving project
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2024.2/data/ip'.
+INFO: [Project 1-5579] Found utility IPs instantiated in one or more block designs which have equivalent inline hdl with improved performance and reduced diskspace. It is recommended to migrate these utility IPs to inline hdl using the command upgrade_project -migrate_to_inline_hdl. The utility IPs may be deprecated in future releases. More information on inline hdl is available in UG994.
+INFO: [Coretcl 2-1211] Creating project copy for archival...
+INFO: [ProjectBase 1-495] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience any problem with archiving the project, please consider setting environment variable $TEMP to a shorter path.
+Current project path is 'C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460/PrjAr/_X_'.
+WARNING: [IP_Flow 19-4995] The host OS only allows 260 characters in a normal path. The IP cache path is more than 80 characters. If you experience issues with IP caching, please consider changing the IP cache to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter. 
+Current IP cache path is C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460/PrjAr/_X_/lab4_hw.cache/ip 
+INFO: [Coretcl 2-135] resetting runs for excluding generated files from archive...
+WARNING: [Coretcl 2-105] Run 'synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'synth_1'...
+INFO: [Project 1-1161] Replacing file C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460/PrjAr/_X_/lab4_hw.srcs/utils_1/imports/synth_1/lab3_hw_wrapper.dcp with file C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460/PrjAr/_X_/lab4_hw.runs/synth_1/lab3_hw_wrapper.dcp
+WARNING: [Coretcl 2-105] Run 'lab3_hw_processing_system7_0_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_processing_system7_0_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_gpio_0_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_0_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_rst_ps7_0_50M_2_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_rst_ps7_0_50M_2_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_quad_spi_0_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_quad_spi_0_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_gpio_2_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_2_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_gpio_4_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_4_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_gpio_1_0_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_1_0_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_smc_2_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_smc_2_synth_1'...
+WARNING: [Coretcl 2-105] Run 'lab3_hw_axi_gpio_0_1_synth_1' is currently active
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_0_1_synth_1'...
+INFO: [Coretcl 2-133] resetting run 'impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_processing_system7_0_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_0_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_rst_ps7_0_50M_2_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_quad_spi_0_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_2_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_4_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_1_0_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_smc_2_impl_1'...
+INFO: [Coretcl 2-133] resetting run 'lab3_hw_axi_gpio_0_1_impl_1'...
+INFO: [Coretcl 2-1212] Importing remotely added design sources and verilog include files (if any)...
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_gpio_0_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_gpio_0_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_gpio_0_1'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_gpio_0_1'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_gpio_1_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_gpio_1_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_gpio_2_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_gpio_2_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_gpio_4_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_gpio_4_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_quad_spi_0_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_quad_spi_0_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_axi_smc_2'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_axi_smc_2'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_processing_system7_0_0'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_processing_system7_0_0'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'lab3_hw_rst_ps7_0_50M_2'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'lab3_hw_rst_ps7_0_50M_2'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'constrs_1'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'constrs_1'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'sources_1'
+INFO: [filemgmt 20-334] All file(s) are already imported in fileset: 'utils_1'
+INFO: [filemgmt 20-348] Importing the appropriate files for fileset: 'utils_1'

@@ -1,0 +1,74 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"0.483031",
+   "Default View_TopLeft":"-284,0",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0
+#  -string -flagsOSRD
+preplace port DDR -pg 1 -lvl 6 -x 1630 -y 60 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -lvl 6 -x 1630 -y 90 -defaultsOSRD
+preplace port keypad -pg 1 -lvl 6 -x 1630 -y 1050 -defaultsOSRD
+preplace port port-id_pmod_mosi -pg 1 -lvl 6 -x 1630 -y 510 -defaultsOSRD
+preplace port port-id_pmod_sclk -pg 1 -lvl 6 -x 1630 -y 540 -defaultsOSRD
+preplace portBus pmod_cs -pg 1 -lvl 6 -x 1630 -y 570 -defaultsOSRD
+preplace portBus oled_dc -pg 1 -lvl 6 -x 1630 -y 150 -defaultsOSRD
+preplace portBus oled_reset -pg 1 -lvl 6 -x 1630 -y 250 -defaultsOSRD
+preplace portBus oled_vbatc -pg 1 -lvl 6 -x 1630 -y 350 -defaultsOSRD
+preplace portBus oled_vddc -pg 1 -lvl 6 -x 1630 -y 450 -defaultsOSRD
+preplace portBus buttons -pg 1 -lvl 0 -x 0 -y 850 -defaultsOSRD
+preplace portBus switches -pg 1 -lvl 0 -x 0 -y 880 -defaultsOSRD
+preplace portBus green_leds -pg 1 -lvl 6 -x 1630 -y 890 -defaultsOSRD
+preplace portBus rgb_led -pg 1 -lvl 6 -x 1630 -y 930 -defaultsOSRD
+preplace portBus motor_pin -pg 1 -lvl 6 -x 1630 -y 1190 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 1 -x 220 -y 230 -defaultsOSRD
+preplace inst gpio_oled -pg 1 -lvl 4 -x 1260 -y 370 -defaultsOSRD
+preplace inst axi_smc -pg 1 -lvl 3 -x 930 -y 720 -defaultsOSRD
+preplace inst rst_ps7_0_50M -pg 1 -lvl 2 -x 620 -y 980 -defaultsOSRD
+preplace inst xlslice_0 -pg 1 -lvl 5 -x 1510 -y 150 -defaultsOSRD
+preplace inst xlslice_1 -pg 1 -lvl 5 -x 1510 -y 250 -defaultsOSRD
+preplace inst xlslice_2 -pg 1 -lvl 5 -x 1510 -y 350 -defaultsOSRD
+preplace inst xlslice_3 -pg 1 -lvl 5 -x 1510 -y 450 -defaultsOSRD
+preplace inst spi_oled -pg 1 -lvl 4 -x 1260 -y 530 -defaultsOSRD
+preplace inst gpio_inputs -pg 1 -lvl 4 -x 1260 -y 720 -defaultsOSRD
+preplace inst gpio_keypad -pg 1 -lvl 4 -x 1260 -y 1050 -defaultsOSRD
+preplace inst gpio_leds -pg 1 -lvl 4 -x 1260 -y 900 -defaultsOSRD
+preplace inst stepper_motor -pg 1 -lvl 4 -x 1260 -y 1190 -defaultsOSRD
+preplace netloc axi_gpio_0_gpio_io_o 1 4 1 1410 150n
+preplace netloc axi_quad_spi_0_io0_o 1 4 2 N 510 NJ
+preplace netloc axi_quad_spi_0_sck_o 1 4 2 1410 540 NJ
+preplace netloc axi_quad_spi_0_ss_o 1 4 2 1410 570 NJ
+preplace netloc gpio2_io_i_0_1 1 0 5 20J 600 N 600 NJ 600 1120J 630 1410
+preplace netloc gpio_io_i_0_1 1 0 5 NJ 850 N 850 NJ 850 1120J 810 1400
+preplace netloc gpio_leds_gpio2_io_o 1 4 2 NJ 930 NJ
+preplace netloc gpio_leds_gpio_io_o 1 4 2 NJ 890 NJ
+preplace netloc processing_system7_0_FCLK_CLK0 1 0 4 20 450 440 720 790 840 1100
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 1 1 430 390n
+preplace netloc processing_system7_0_SPI0_MOSI_O 1 1 1 420 150n
+preplace netloc processing_system7_0_SPI0_SCLK_O 1 1 1 440 130n
+preplace netloc processing_system7_0_SPI1_MISO_O 1 1 1 430 170n
+preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 2 2 800 860 1110
+preplace netloc xlslice_0_Dout 1 5 1 NJ 150
+preplace netloc xlslice_1_Dout 1 5 1 NJ 250
+preplace netloc xlslice_2_Dout 1 5 1 NJ 350
+preplace netloc xlslice_3_Dout 1 5 1 NJ 450
+preplace netloc stepper_motor_gpio_io_o 1 4 2 NJ 1190 NJ
+preplace netloc axi_smc_M00_AXI 1 3 1 1060 350n
+preplace netloc axi_smc_M01_AXI 1 3 1 1080 500n
+preplace netloc axi_smc_M02_AXI 1 3 1 N 700
+preplace netloc axi_smc_M03_AXI 1 3 1 1080 720n
+preplace netloc axi_smc_M04_AXI 1 3 1 1070 740n
+preplace netloc gpio_keypad_GPIO 1 4 2 NJ 1050 NJ
+preplace netloc processing_system7_0_DDR 1 1 5 440 60 NJ 60 NJ 60 NJ 60 NJ
+preplace netloc processing_system7_0_FIXED_IO 1 1 5 N 90 NJ 90 NJ 90 NJ 90 NJ
+preplace netloc processing_system7_0_M_AXI_GP0 1 1 2 N 290 790
+preplace netloc axi_smc_M06_AXI 1 3 1 1060 780n
+levelinfo -pg 1 0 220 620 930 1260 1510 1630
+pagesize -pg 1 -db -bbox -sgen -130 0 1780 1270
+"
+}
+{
+   "da_axi4_cnt":"9",
+   "da_board_cnt":"4",
+   "da_clkrst_cnt":"1",
+   "da_ps7_cnt":"2"
+}

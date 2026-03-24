@@ -1,0 +1,67 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:35:27 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Wed Mar 18 10:45:40 2026
+# Process ID         : 6668
+# Current directory  : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform
+# Command line       : vivado.exe -gui_launcher_event rodinguilauncherevent18524 C:\Users\Engg-User\Desktop\ece315_2026\lab4\lab_4_hw_platform\lab_4_hw.xpr
+# Log file           : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/vivado.log
+# Journal file       : C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform\vivado.jou
+# Running On         : LT-735460
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz
+# CPU Frequency      : 2496 MHz
+# CPU Physical cores : 8
+# CPU Logical cores  : 16
+# Host memory        : 34070 MB
+# Swap memory        : 2147 MB
+# Total Virtual      : 36217 MB
+# Available Virtual  : 24657 MB
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.xpr
+upgrade_project -migrate_output_products
+open_bd_design {c:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.srcs/sources_1/bd/design_1/design_1.bd}
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+close_bd_design [get_bd_designs design_1]
+close_project
+open_project C:/Users/Engg-User/Desktop/temp/hw/lab3_full/lab3_full.xpr
+close_project
+open_project C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/lab_4_hw.xpr
+update_compile_order -fileset sources_1
+close_project
+open_project C:/Users/Engg-User/Desktop/temp/hw/lab3_full/lab3_full.xpr
+update_compile_order -fileset sources_1
+save_project_as lab4_hw C:/Users/Engg-User/Desktop/temp/lab4_hw -force
+open_bd_design {C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd}
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0
+endgroup
+set_property location {4 1085 1491} [get_bd_cells axi_gpio_0]
+set_property name stepper_motor [get_bd_cells axi_gpio_0]
+set_property -dict [list \
+  CONFIG.C_ALL_OUTPUTS {1} \
+  CONFIG.C_GPIO_WIDTH {4} \
+  CONFIG.C_INTERRUPT_PRESENT {1} \
+] [get_bd_cells stepper_motor]
+startgroup
+make_bd_pins_external  [get_bd_pins stepper_motor/gpio_io_o]
+endgroup
+set_property name motor_pin [get_bd_ports gpio_io_o_0]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (50 MHz)} Clk_slave {Auto} Clk_xbar {/processing_system7_0/FCLK_CLK0 (50 MHz)} Master {/processing_system7_0/M_AXI_GP0} Slave {/stepper_motor/S_AXI} ddr_seg {Auto} intc_ip {/axi_smc} master_apm {0}}  [get_bd_intf_pins stepper_motor/S_AXI]
+validate_bd_design
+delete_bd_objs [get_bd_intf_nets axi_smc_M05_AXI] [get_bd_nets gpio_ssd_gpio_io_o] [get_bd_cells gpio_ssd]
+delete_bd_objs [get_bd_ports digit]
+validate_bd_design
+regenerate_bd_layout -routing
+make_wrapper -files [get_files C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw.srcs/sources_1/bd/lab3_hw/lab3_hw.bd] -top
+reset_run synth_1
+reset_run lab3_hw_axi_smc_2_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 16
+wait_on_run impl_1
+write_hw_platform -fixed -include_bit -force -file C:/Users/Engg-User/Desktop/temp/lab4_hw/lab4_hw_wrapper.xsa
+archive_project C:/Users/Engg-User/Desktop/temp/lab4_hw.xpr.zip -temp_dir C:/Users/Engg-User/Desktop/ece315_2026/lab4/lab_4_hw_platform/.Xil/Vivado-6668-LT-735460 -force -exclude_run_results -include_local_ip_cache
