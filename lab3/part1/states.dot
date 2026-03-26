@@ -1,0 +1,61 @@
+digraph SystemState {
+    // Graph styling
+    rankdir=LR;
+    node [shape=Mrecord, fontname="Helvetica, Arial, sans-serif", fontsize=11, style="filled, rounded"];
+    edge [fontname="Helvetica, Arial, sans-serif", fontsize=10, color="#555555"];
+
+    // Initialization node
+    Init [shape=point, width=0.08, fillcolor="black"];
+
+    // Define States
+    Idle [
+        label="{IDLE / TERMINATED | command_flag = 1\n uart_loopback = 0\n spi_loopback = 0\n report_flag = 0}"
+        fillcolor="#E0E0E0"
+    ];
+
+    UART_Loopback [
+        label="{UART LOOPBACK ON | command_flag = 1\n uart_loopback = 1\n}"
+        fillcolor="#FFCDD2"
+    ];
+
+    SPI_Local_Echo [
+        label="{SPI LOCAL ECHO | command_flag = 2\n spi_loopback = 0}"
+        fillcolor="#BBDEFB"
+    ];
+
+    SPI_Real_Loop [
+        label="{SPI REAL LOOP | command_flag = 2\n spi_loopback = 1}"
+        fillcolor="#C8E6C9"
+    ];
+
+    Report_Flush [
+        label="{FLUSHING REPORT | report_flag = 1\n Sending SPI stats\n to UART}"
+        fillcolor="#C8E6C9"
+    ];
+
+    // Transitions
+    Init -> Idle [label=" System Boot"];
+
+    // Command 1 Interactions
+    Idle -> UART_Loopback [label="1"];
+    UART_Loopback -> Idle [label="1"];
+
+    SPI_Local_Echo -> UART_Loopback [label="1"];
+    SPI_Real_Loop -> UART_Loopback [label="1"];
+
+    // Command 2 Interactions
+    Idle -> SPI_Real_Loop [label="2"];
+    UART_Loopback -> SPI_Real_Loop [label="2"];
+
+    SPI_Local_Echo -> SPI_Real_Loop [label="2"];
+    SPI_Real_Loop -> SPI_Local_Echo [label="2"];
+
+    // Termination Sequence Interactions (%)
+    UART_Loopback -> Idle [label="%"];
+    SPI_Local_Echo -> Idle [label="%"];
+
+    // SPI Sub Task specific termination handling
+    SPI_Real_Loop -> Report_Flush [label="%"];
+    Report_Flush -> Idle [label="Report Finished"];
+}
+
