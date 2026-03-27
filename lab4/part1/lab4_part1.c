@@ -38,6 +38,10 @@
 #include "xuartps.h" 		//UART definitions header file
 #include "xgpio.h"			//GPIO functions definitions
 #include "xparameters.h"	//DEVICE ID, UART BASEADDRESS, GPIO BASE ADDRESS definitions
+#include <portmacro.h>
+#include <projdefs.h>
+#include <string.h>
+#include <xgpio_l.h>
 
 
 static void _Task_Uart( void *pvParameters );
@@ -66,8 +70,17 @@ XGpio Red_RGBInst;
 
 #define PMOD_MOTOR_BASEADDR                 XPAR_STEPPER_MOTOR_BASEADDR
 
-#define RGB_LED_BASEADDR					XPAR_PMOD_RGB_DEVICE_ID
+/* ================= RGB LED Colors ================= */
+#define RGB_OFF     0b000
+#define RGB_RED     0b100
+#define RGB_GREEN   0b010
+#define RGB_BLUE    0b001
+#define RGB_YELLOW  0b110  // Red + Green
+#define RGB_CYAN    0b011  // Green + Blue
+#define RGB_MAGENTA 0b101  // Red + Blue
+#define RGB_WHITE   0b111
 
+#define RGB_CHANNEL   2
 // The number of positions/delays which can be sequenced
 #define SEQUENCE_LENGTH 10
 
@@ -97,7 +110,7 @@ int main (void)
 	//------------------------------------------------------
 
 	// Initialize the PMOD for motor signals (JC PMOD is being used)
-	status = XGpio_Initialize(&PModMotorInst, PMOD_MOTOR_DEVICE_ID);
+	status = XGpio_Initialize(&PModMotorInst, PMOD_MOTOR_BASEADDR);
 	if(status != XST_SUCCESS){
 	xil_printf("GPIO Initialization for PMOD unsuccessful.\r\n");
 	return XST_FAILURE;
@@ -137,7 +150,6 @@ int main (void)
 	motor_parameters.rotational_speed = 500;
 	motor_parameters.rotational_acceleration = 150;
 	motor_parameters.rotational_deceleration = 150;
-	motor_parameters.step_type = 0;
 
 	xil_printf("\nStepper motor Initialization Complete! Operational parameters can be changed below:\n\n");
 
@@ -175,6 +187,7 @@ int main (void)
 }
 
 static void _Task_Uart( void *pvParameters ){
+    (void) pvParameters;
 
 	int message_flag = 0;
 
@@ -417,7 +430,7 @@ static void _Task_Motor( void *pvParameters ){
 
 		/**********************************************************************************************/
 		// get the motor parameters from the queue (FIFO1). The structure "decision_parameters" to store the received data has been declared in this task for you.
-
+        xQueueReceive(xQueue_FIFO1, &read_motor_parameters_from_queue, portMAX_DELAY);
 
 		/**********************************************************************************************/
 
@@ -433,8 +446,19 @@ static void _Task_Motor( void *pvParameters ){
 		// For example, the first destination-delay pair has value <2048,1000> which means motor should move to position 2048 and then dwell for 1000 ms at this position.
 		// Find the function from the driver code that will help to move the motor by an absolute number of target steps.! The function is mentioned in the handout as well.
 		// Once the motor reaches the desired position, disable the motor and then execute the dwell time delay using the conventional vTaskDelay().
+        
+        Stepper_setSpeedInStepsPerSecond(read_motor_parameters_from_queue->rotational_speed);
+        Stepper_setAccelerationInStepsPerSecondPerSecond(read_motor_parameters_from_queue->rotational_acceleration);
+        Stepper_setDecelerationInStepsPerSecondPerSecond(read_motor_parameters_from_queue->rotational_deceleration);
+        Stepper_setCurrentPositionInSteps(read_motor_parameters_from_queue->currentposition_in_steps);
 
-
+        for(int i = 0; i < sequenceIndex; ++i) {
+            XGpio_DiscreteWrite(&Red_RGBInst, RGB_CHANNEL, RGB_GREEN);
+            Stepper_moveToPositionInSteps((long) positionSequence[i][0]);
+            Stepper_disableMotor();
+            XGpio_DiscreteWrite(&Red_RGBInst, RGB_CHANNEL, RGB_OFF);
+            vTaskDelay(positionSequence[i][1]);
+        }
 
 		/**********************************************************************************************/
 
@@ -458,7 +482,7 @@ static void _Task_Emerg_Stop( void *pvParameters ){
 		/**********************************************************************************************/
 		//Read the Button value inside the variable "btnState"
 		//i.e., poll the button
-
+        btnState = XGpio_DiscreteRead(&BTNInst, 1);
 
 		/**********************************************************************************************/
 
@@ -468,6 +492,7 @@ static void _Task_Emerg_Stop( void *pvParameters ){
 
 		// if the button is pressed for 3 consecutive polls
 		if(pressedCount >= 3){
+            sequenceIndex = 0; // stop the loop
 
 			/**********************************************************************************************/
 			//Set the "current stepper position" to the position at which it must now begin decelerating.
@@ -475,8 +500,18 @@ static void _Task_Emerg_Stop( void *pvParameters ){
 			//Cancel the rest of the destination position-delay pairs.
 			//Inside an infinite loop, flash the Red light on RGB led at 2Hz.
 			//The Object Instance for RGB led is "Red_RGBInst".
+            Stepper_setCurrentPositionInSteps(targetPosition_InSteps - decelerationDistance_InSteps);        
+            // hang
+            while (1) {
+                // flash red at 2 Hz
 
+                XGpio_DiscreteWrite(&Red_RGBInst, RGB_CHANNEL, RGB_RED);
+                vTaskDelay(pdMS_TO_TICKS(250));
+                Stepper_disableMotor();
 
+                XGpio_DiscreteWrite(&Red_RGBInst, RGB_CHANNEL, RGB_OFF);
+                vTaskDelay(pdMS_TO_TICKS(250));
+            }
 
 			/**********************************************************************************************/
 		}
